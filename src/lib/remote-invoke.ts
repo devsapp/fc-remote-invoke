@@ -36,7 +36,7 @@ export default class RemoteInvoke {
         payload.event = event ? JSON.parse(event) : {};
       } catch (ex) {
         logger.debug(ex);
-        throw new Error('handler event error. Example: ');
+        throw new Error('handler event error. Example: https://github.com/devsapp/fc-remote-invoke/blob/master/example/http.json');
       }
       
       await this.httpInvoke(payload);
