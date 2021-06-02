@@ -112,6 +112,5 @@ export default class FcRemoteInvoke {
 
     const remoteInvoke = new RemoteInvoke(props.region, credentials);
     await remoteInvoke.invoke(props, eventPayload, { invocationType });
-    return {};
   }
 }

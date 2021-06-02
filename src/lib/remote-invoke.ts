@@ -78,7 +78,8 @@ export default class RemoteInvoke {
         logger.log('========= FC invoke Logs end =========', 'yellow');
 
         logger.log('\nFC Invoke Result:', 'green');
-        logger.log(rs.data);
+        console.log(rs.data);
+        console.log('\n');
       }
     } else {
       await this.fcClient.invokeFunction(serviceName, functionName, event, {
@@ -107,6 +108,7 @@ export default class RemoteInvoke {
     let resp;
     try {
       const mt = method.toLocaleUpperCase();
+      logger.debug(`method is ${mt}.`)
       if (mt === 'GET') {
         resp = await this.fcClient.get(p, queries, headers);
       } else if (mt === 'POST') {
@@ -124,19 +126,21 @@ export default class RemoteInvoke {
         logger.log(`Does not support ${method} requests temporarily.`);
       }
     } catch (e) {
-      logger.log(e);
+      logger.debug(e);
       throw e;
     }
 
     if (resp) {
       const log = resp.headers['x-fc-log-result'];
       if (log) {
-        logger.log('\n========= FC invoke Logs begin =========')
+        logger.log('\n========= FC invoke Logs begin =========', 'yellow');
         const decodedLog = Buffer.from(log, 'base64')
         logger.log(decodedLog.toString())
-        logger.log('========= FC invoke Logs end =========\n')
+        logger.log('========= FC invoke Logs end =========', 'yellow');
       }
-      logger.log(`FC Invoke Result:\n${resp.data}`);
+      logger.log('\nFC Invoke Result:', 'green');
+      console.log(resp.data);
+      console.log('\n');
     }
   }
 
