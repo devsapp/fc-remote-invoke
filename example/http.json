@@ -1,0 +1,11 @@
+{
+  "body": 123,
+  "method": "POST",
+  "headers": {
+    "key": "value"
+  },
+  "queries": {
+    "key": "value"
+  },
+  "path": "string"
+}

@@ -1,6 +1,6 @@
 {
 	"id": 0,
-	"name": "fc-local-invoke",
+	"name": "fc-remote-invoke",
 	"kind": 0,
 	"kindString": "Project",
 	"flags": {},
@@ -26,163 +26,16 @@
 							"kind": 16384,
 							"kindString": "Constructor signature",
 							"flags": {},
-							"parameters": [
-								{
-									"id": 4,
-									"name": "props",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								}
-							],
 							"type": {
 								"type": "reference",
 								"id": 1,
 								"name": "default"
-							},
-							"overwrites": {
-								"type": "reference",
-								"name": "BaseComponent.constructor"
 							}
 						}
-					],
-					"overwrites": {
-						"type": "reference",
-						"name": "BaseComponent.constructor"
-					}
+					]
 				},
 				{
-					"id": 23,
-					"name": "client",
-					"kind": 1024,
-					"kindString": "Property",
-					"flags": {
-						"isProtected": true
-					},
-					"sources": [
-						{
-							"fileName": "common/base.ts",
-							"line": 9,
-							"character": 20
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "any"
-					},
-					"inheritedFrom": {
-						"type": "reference",
-						"name": "BaseComponent.client"
-					}
-				},
-				{
-					"id": 24,
-					"name": "inputs",
-					"kind": 1024,
-					"kindString": "Property",
-					"flags": {
-						"isProtected": true
-					},
-					"type": {
-						"type": "intrinsic",
-						"name": "any"
-					},
-					"inheritedFrom": {
-						"type": "reference",
-						"name": "BaseComponent.inputs"
-					}
-				},
-				{
-					"id": 27,
-					"name": "__doc",
-					"kind": 2048,
-					"kindString": "Method",
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "common/base.ts",
-							"line": 34,
-							"character": 9
-						}
-					],
-					"signatures": [
-						{
-							"id": 28,
-							"name": "__doc",
-							"kind": 4096,
-							"kindString": "Call signature",
-							"flags": {},
-							"parameters": [
-								{
-									"id": 29,
-									"name": "projectName",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {
-										"isOptional": true
-									},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "BaseComponent.__doc"
-							}
-						}
-					],
-					"inheritedFrom": {
-						"type": "reference",
-						"name": "BaseComponent.__doc"
-					}
-				},
-				{
-					"id": 25,
-					"name": "__getBasePath",
-					"kind": 2048,
-					"kindString": "Method",
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "common/base.ts",
-							"line": 21,
-							"character": 17
-						}
-					],
-					"signatures": [
-						{
-							"id": 26,
-							"name": "__getBasePath",
-							"kind": 4096,
-							"kindString": "Call signature",
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"name": "BaseComponent.__getBasePath"
-							}
-						}
-					],
-					"inheritedFrom": {
-						"type": "reference",
-						"name": "BaseComponent.__getBasePath"
-					}
-				},
-				{
-					"id": 14,
+					"id": 9,
 					"name": "handlerInputs",
 					"kind": 2048,
 					"kindString": "Method",
@@ -190,27 +43,27 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 56,
+							"line": 13,
 							"character": 21
 						}
 					],
 					"signatures": [
 						{
-							"id": 15,
+							"id": 10,
 							"name": "handlerInputs",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 16,
+									"id": 11,
 									"name": "inputs",
 									"kind": 32768,
 									"kindString": "Parameter",
 									"flags": {},
 									"type": {
-										"type": "reference",
-										"name": "InputProps"
+										"type": "intrinsic",
+										"name": "any"
 									}
 								}
 							],
@@ -228,7 +81,7 @@
 					]
 				},
 				{
-					"id": 20,
+					"id": 12,
 					"name": "invoke",
 					"kind": 2048,
 					"kindString": "Method",
@@ -238,13 +91,13 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 197,
+							"line": 54,
 							"character": 21
 						}
 					],
 					"signatures": [
 						{
-							"id": 21,
+							"id": 13,
 							"name": "invoke",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -255,15 +108,15 @@
 							},
 							"parameters": [
 								{
-									"id": 22,
+									"id": 14,
 									"name": "inputs",
 									"kind": 32768,
 									"kindString": "Parameter",
 									"flags": {},
 									"comment": {},
 									"type": {
-										"type": "reference",
-										"name": "InputProps"
+										"type": "intrinsic",
+										"name": "any"
 									}
 								}
 							],
@@ -281,7 +134,7 @@
 					]
 				},
 				{
-					"id": 5,
+					"id": 4,
 					"name": "report",
 					"kind": 2048,
 					"kindString": "Method",
@@ -289,20 +142,20 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 33,
+							"line": 6,
 							"character": 14
 						}
 					],
 					"signatures": [
 						{
-							"id": 6,
+							"id": 5,
 							"name": "report",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 7,
+									"id": 6,
 									"name": "componentName",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -313,7 +166,7 @@
 									}
 								},
 								{
-									"id": 8,
+									"id": 7,
 									"name": "command",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -324,26 +177,11 @@
 									}
 								},
 								{
-									"id": 9,
+									"id": 8,
 									"name": "accountID",
 									"kind": 32768,
 									"kindString": "Parameter",
-									"flags": {
-										"isOptional": true
-									},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								},
-								{
-									"id": 10,
-									"name": "access",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {
-										"isOptional": true
-									},
+									"flags": {},
 									"type": {
 										"type": "intrinsic",
 										"name": "string"
@@ -362,99 +200,6 @@
 							}
 						}
 					]
-				},
-				{
-					"id": 17,
-					"name": "start",
-					"kind": 2048,
-					"kindString": "Method",
-					"flags": {
-						"isPublic": true
-					},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 109,
-							"character": 20
-						}
-					],
-					"signatures": [
-						{
-							"id": 18,
-							"name": "start",
-							"kind": 4096,
-							"kindString": "Call signature",
-							"flags": {},
-							"comment": {
-								"shortText": "http 函数本地调试",
-								"returns": "\n"
-							},
-							"parameters": [
-								{
-									"id": 19,
-									"name": "inputs",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {},
-									"comment": {},
-									"type": {
-										"type": "reference",
-										"name": "InputProps"
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"typeArguments": [
-									{
-										"type": "intrinsic",
-										"name": "any"
-									}
-								],
-								"name": "Promise"
-							}
-						}
-					]
-				},
-				{
-					"id": 11,
-					"name": "startExpress",
-					"kind": 2048,
-					"kindString": "Method",
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 46,
-							"character": 14
-						}
-					],
-					"signatures": [
-						{
-							"id": 12,
-							"name": "startExpress",
-							"kind": 4096,
-							"kindString": "Call signature",
-							"flags": {},
-							"parameters": [
-								{
-									"id": 13,
-									"name": "app",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
 				}
 			],
 			"groups": [
@@ -466,38 +211,20 @@
 					]
 				},
 				{
-					"title": "Properties",
-					"kind": 1024,
-					"children": [
-						23,
-						24
-					]
-				},
-				{
 					"title": "Methods",
 					"kind": 2048,
 					"children": [
-						27,
-						25,
-						14,
-						20,
-						5,
-						17,
-						11
+						9,
+						12,
+						4
 					]
 				}
 			],
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 28,
-					"character": 43
-				}
-			],
-			"extendedTypes": [
-				{
-					"type": "reference",
-					"name": "BaseComponent"
+					"line": 5,
+					"character": 35
 				}
 			]
 		}
