@@ -67,7 +67,6 @@ export default class FcRemoteInvoke {
       region: argsData.region,
       serviceName: argsData['service-name'],
       functionName: argsData['function-name'],
-      qualifier: argsData.qualifier,
     };
     logger.debug(`input args props: ${JSON.stringify(props)}`);
 
@@ -79,6 +78,8 @@ export default class FcRemoteInvoke {
     if (!isProperties(props)) {
       throw new Error('region/serviceName(service-name)/functionName(function-name) can not be empty.');
     }
+
+    props.qualifier = argsData.qualifier || inputs.props?.qualifier;
 
     return {
       props,
