@@ -40,12 +40,12 @@ export default [
         type: String,
       },
       {
-        name: 'service',
+        name: 'service-name',
         description: 'Pass in service name in cli mode',
         type: String,
       },
       {
-        name: 'function',
+        name: 'function-name',
         description: 'Pass in function name in cli mode',
         type: String,
       },
@@ -66,7 +66,7 @@ export default [
   {
     header: 'CLI Examples',
     content: [
-      '$ s cli fc-remote-invoke invoke --region * --service * --function * <options>',
+      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * <options>',
     ],
   },
 ]
