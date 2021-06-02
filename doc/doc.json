@@ -43,7 +43,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 13,
+							"line": 16,
 							"character": 21
 						}
 					],
@@ -62,8 +62,8 @@
 									"kindString": "Parameter",
 									"flags": {},
 									"type": {
-										"type": "intrinsic",
-										"name": "any"
+										"type": "reference",
+										"name": "InputProps"
 									}
 								}
 							],
@@ -91,7 +91,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 54,
+							"line": 98,
 							"character": 21
 						}
 					],
@@ -115,8 +115,8 @@
 									"flags": {},
 									"comment": {},
 									"type": {
-										"type": "intrinsic",
-										"name": "any"
+										"type": "reference",
+										"name": "InputProps"
 									}
 								}
 							],
@@ -142,7 +142,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 6,
+							"line": 9,
 							"character": 14
 						}
 					],
@@ -223,7 +223,7 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 5,
+					"line": 8,
 					"character": 35
 				}
 			]
