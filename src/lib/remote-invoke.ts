@@ -128,6 +128,9 @@ export default class RemoteInvoke {
       }
     } catch (e) {
       logger.debug(e);
+      if (e.message === 'Unexpected token r in JSON at position 0' && e.stack.includes('/fc2/lib/client.js') && e.stack.includes('at Client.request')) {
+        throw new Error('Http response is not a json, but the content-type of the returned header is application/json.');
+      }
       throw e;
     }
     logger.debug(`end invoke.`);
