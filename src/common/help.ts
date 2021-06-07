@@ -1,6 +1,6 @@
 export default [
   {
-    header: 'Remote Invoke',
+    header: 'Description',
     content: 'Remote Invoke',
   },
   {
@@ -49,22 +49,27 @@ export default [
         description: 'Pass in function name in cli mode',
         type: String,
       },
+    ],
+  },
+  {
+    header: 'Global Options',
+    optionList: [
       {
         name: 'help',
-        description: 'Help for remote invoke.',
+        description: 'fc-remote-invoke help for command',
         alias: 'h',
         type: Boolean,
       },
     ],
   },
   {
-    header: 'YAML Examples',
+    header: 'Examples with Yaml',
     content: [
       '$ s exec -- invoke <options>',
     ],
   },
   {
-    header: 'CLI Examples',
+    header: 'Examples with Cli',
     content: [
       '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * <options>',
     ],

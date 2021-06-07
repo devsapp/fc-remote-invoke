@@ -108,7 +108,8 @@ export default class RemoteInvoke {
     let resp;
     try {
       const mt = method.toLocaleUpperCase();
-      logger.debug(`method is ${mt}.`)
+      logger.debug(`method is ${mt}.`);
+      logger.debug(`start invoke.`);
       if (mt === 'GET') {
         resp = await this.fcClient.get(p, queries, headers);
       } else if (mt === 'POST') {
@@ -129,6 +130,7 @@ export default class RemoteInvoke {
       logger.debug(e);
       throw e;
     }
+    logger.debug(`end invoke.`);
 
     if (resp) {
       const log = resp.headers['x-fc-log-result'];
