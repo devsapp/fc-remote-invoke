@@ -40,5 +40,19 @@ $ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --
 
 当函数是 http 函数时，event最终获取值目前仅支持 json 字符串，[示例参考](https://github.com/devsapp/fc-remote-invoke/blob/master/example/http.json)
 
+````
+{
+  "body": "body",
+  "method": "POST",
+  "headers": {
+    "key": "value"
+  },
+  "queries": {
+    "key": "value"
+  },
+  "path": "string"
+}
+````
+
 invocation-type 选填，默认 sync
 event 选填，event 函数默认为空字符串，http 函数默认 GET 请求，其他参数为空

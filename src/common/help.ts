@@ -13,25 +13,25 @@ export default [
       {
         name: 'invocation-type',
         description: 'Invocation type: optional value "async"|"sync", default value "sync" (default: "sync")',
-        alias: '-t',
+        alias: 't',
         type: String,
       },
       {
         name: 'event',
-        description: 'Event data (strings) passed to the function during invocation (default: "")',
-        alias: '-e',
+        description: 'Event data (strings) passed to the function during invocation (default: "").Http function format refers to [https://github.com/devsapp/fc-remote-invoke#特别说明]',
+        alias: 'e',
         type: String,
       },
       {
         name: 'event-file',
-        description: 'A file containing event data passed to the function during invoke.',
-        alias: '-f',
+        description: 'Event funtion: A file containing event data passed to the function during invoke. Http function: A file containing http request options sent to http trigger. Format refers to [https://github.com/devsapp/fc-remote-invoke#特别说明]',
+        alias: 'f',
         type: String,
       },
       {
         name: 'event-stdin',
-        description: 'Read from standard input, to support script pipeline.',
-        alias: '-s',
+        description: 'Read from standard input, to support script pipeline.Http function format refers to [https://github.com/devsapp/fc-remote-invoke#特别说明]',
+        alias: 's',
         type: Boolean,
       },
       {
@@ -65,13 +65,17 @@ export default [
   {
     header: 'Examples with Yaml',
     content: [
-      '$ s exec -- invoke <options>',
+      '$ s exec -- invoke --invocation-type sync --event [payload]',
+      '$ s exec -- invoke --invocation-type async --event-file [path]',
+      '$ s exec -- invoke --event-stdin',
     ],
   },
   {
     header: 'Examples with Cli',
     content: [
-      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * <options>',
+      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event [payload]',
+      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-file [path]',
+      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-stdin',
     ],
   },
 ]
