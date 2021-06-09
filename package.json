@@ -1,6 +1,6 @@
 {
   "name": "fc-remote-invoke",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "This is a component demo for Serverless Devs Tool ",
   "keywords": [
     "Serverless",
@@ -23,9 +23,9 @@
   },
   "scripts": {
     "start": "npm run watch",
-    "watch": "npm run doc && tsc -w",
+    "watch": "tsc -w",
     "publish": "npm run build && s cli platform publish",
-    "build": "tsc",
+    "build": "npm run doc && tsc",
     "postbuild": "npm run doc",
     "doc": "npx typedoc src/index.ts --json doc/doc.json --out doc"
   },
