@@ -1,3 +1,7 @@
 {
-	"deploy test": "部署测试"
+	"deploy test": "部署测试",
+	"input args: -h -h": "input args: -h -h",
+	"command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false}": "command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false}",
+	"input args: -h --debug -h": "input args: -h --debug -h",
+	"command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false,\"debug\":true}": "command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false,\"debug\":true}"
 }

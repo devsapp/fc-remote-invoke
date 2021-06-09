@@ -97,6 +97,18 @@
 					<h2>特别说明</h2>
 				</a>
 				<p>当函数是 http 函数时，event最终获取值目前仅支持 json 字符串，<a href="https://github.com/devsapp/fc-remote-invoke/blob/master/example/http.json">示例参考</a></p>
+				<pre><code><span style="color: #000000">{</span>
+<span style="color: #000000">  </span><span style="color: #A31515">&quot;body&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;body&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #A31515">&quot;method&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;POST&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #A31515">&quot;headers&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">    </span><span style="color: #A31515">&quot;key&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;value&quot;</span>
+<span style="color: #000000">  },</span>
+<span style="color: #000000">  </span><span style="color: #A31515">&quot;queries&quot;</span><span style="color: #000000">: {</span>
+<span style="color: #000000">    </span><span style="color: #A31515">&quot;key&quot;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;value&quot;</span>
+<span style="color: #000000">  },</span>
+<span style="color: #000000">  </span><span style="color: #A31515">&quot;path&quot;</span><span style="color: #000000">: </span><span style="color: #A31515">&quot;string&quot;</span>
+<span style="color: #000000">}</span>
+</code></pre>
 				<p>invocation-type 选填，默认 sync
 				event 选填，event 函数默认为空字符串，http 函数默认 GET 请求，其他参数为空</p>
 			</div>
