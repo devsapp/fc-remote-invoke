@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import * as core from '@serverless-devs/core';
 import logger from './common/logger';
-import help from './common/help';
+import HELP from './common/help';
 import { InputProps, ICredentials, isProperties, IProperties } from './interface/entity';
 import RemoteInvoke from './lib/remote-invoke';
 
@@ -103,10 +103,11 @@ export default class FcRemoteInvoke {
       isHelp,
       invocationType,
     } = await this.handlerInputs(inputs);
-    // await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
+    await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
 
     if (isHelp) {
-      core.help(help)
+      console.log('??');
+      core.help(HELP);
       return;
     }
 
