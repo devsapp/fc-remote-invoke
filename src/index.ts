@@ -106,7 +106,6 @@ export default class FcRemoteInvoke {
     await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
 
     if (isHelp) {
-      console.log('??');
       core.help(HELP);
       return;
     }

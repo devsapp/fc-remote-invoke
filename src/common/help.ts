@@ -1,11 +1,11 @@
 export default [
   {
-    header: 'Description',
-    content: 'Remote Invoke',
+    header: 'Invoke',
+    content: 'Invoke/trigger online functions.',
   },
   {
     header: 'Usage',
-    content: '$ fc-remote-invoke invoke <options>',
+    content: '$ s invoke <options>',
   },
   {
     header: 'Options',
@@ -36,17 +36,17 @@ export default [
       },
       {
         name: 'region',
-        description: 'Pass in region in cli mode',
+        description: 'Specify region in cli mode',
         type: String,
       },
       {
         name: 'service-name',
-        description: 'Pass in service name in cli mode',
+        description: 'Specify service name in cli mode',
         type: String,
       },
       {
         name: 'function-name',
-        description: 'Pass in function name in cli mode',
+        description: 'Specify function name in cli mode',
         type: String,
       },
     ],
@@ -55,8 +55,14 @@ export default [
     header: 'Global Options',
     optionList: [
       {
+        name: 'access',
+        description: 'Specify key alias.',
+        alias: 'a',
+        type: Boolean,
+      },
+      {
         name: 'help',
-        description: 'fc-remote-invoke help for command',
+        description: 'fc-remote-invoke help for command.',
         alias: 'h',
         type: Boolean,
       },
@@ -71,11 +77,20 @@ export default [
     ],
   },
   {
-    header: 'Examples with Cli',
+    header: 'Examples with CLI',
     content: [
-      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event [payload]',
-      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-file [path]',
-      '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-stdin',
+      {
+        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event [payload]',
+      },
+      {
+        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-file [path]',
+      },
+      {
+        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-stdin',
+      },
+      {
+        example: 'You also can refer to the usage of fc-api and execute [s cli fc-api -h] for help.   $ s cli fc-api invokeFunction -h',
+      },
     ],
   },
 ]
