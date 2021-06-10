@@ -25,5 +25,11 @@ declare const _default: ({
     header: string;
     content: string[];
     optionList?: undefined;
+} | {
+    header: string;
+    content: {
+        example: string;
+    }[];
+    optionList?: undefined;
 })[];
 export default _default;
