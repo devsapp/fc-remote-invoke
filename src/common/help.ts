@@ -71,8 +71,10 @@ export default [
   {
     header: 'Examples with Yaml',
     content: [
-      '$ s exec -- invoke --invocation-type sync --event [payload]',
-      '$ s exec -- invoke --invocation-type async --event-file [path]',
+      '$ s invoke',
+      '$ s <ProjectName> invoke',
+      '$ s exec -- invoke --invocation-type sync --event <payload>',
+      '$ s exec -- invoke --event-file <file-path>',
       '$ s exec -- invoke --event-stdin',
     ],
   },
@@ -80,16 +82,16 @@ export default [
     header: 'Examples with CLI',
     content: [
       {
-        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event [payload]',
+        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event <payload>',
       },
       {
-        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-file [path]',
+        example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-file <file-path>',
       },
       {
         example: '$ s cli fc-remote-invoke invoke --region * --service-name * --function-name * --event-stdin',
       },
       {
-        example: 'You also can refer to the usage of fc-api and execute [s cli fc-api -h] for help.   $ s cli fc-api invokeFunction -h',
+        example: '\nYou also can refer to the usage of fc-api and execute [s cli fc-api -h] for help.   $ s cli fc-api invokeFunction -h',
       },
     ],
   },
