@@ -82,11 +82,12 @@ export default class RemoteInvoke {
         console.log('\n');
       }
     } else {
-      await this.fcClient.invokeFunction(serviceName, functionName, event, {
+      const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Invocation-Type': invocationType
       }, qualifier);
+      const rId = headers['x-fc-request-id'];
 
-      logger.log('`${serviceName}/${functionName} async invoke success.\n`', 'green');
+      logger.log(`\n${serviceName}/${functionName} async invoke success.\n${rId ? `request id: ${rId}\n` : ''}`, 'green');
     }
   }
 
@@ -124,7 +125,7 @@ export default class RemoteInvoke {
         resp = await this.fcClient.request('HEAD', p, queries, body, headers);
       } */
       } else {
-        logger.log(`Does not support ${method} requests temporarily.`);
+        logger.error(`Does not support ${method} requests temporarily.`);
       }
     } catch (e) {
       logger.debug(e);
