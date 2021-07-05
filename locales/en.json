@@ -3,5 +3,18 @@
 	"input args: -h -h": "input args: -h -h",
 	"command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false}": "command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false}",
 	"input args: -h --debug -h": "input args: -h --debug -h",
-	"command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false,\"debug\":true}": "command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false,\"debug\":true}"
+	"command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false,\"debug\":true}": "command parse: {\"_\":[],\"help\":true,\"h\":true,\"event-stdin\":false,\"s\":false,\"debug\":true}",
+	"input args: --help": "input args: --help",
+	"input args: --invocation-type async": "input args: --invocation-type async",
+	"command parse: {\"_\":[],\"help\":false,\"h\":false,\"event-stdin\":false,\"s\":false,\"invocation-type\":\"async\",\"t\":\"async\"}": "command parse: {\"_\":[],\"help\":false,\"h\":false,\"event-stdin\":false,\"s\":false,\"invocation-type\":\"async\",\"t\":\"async\"}",
+	"input props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"guide-hello_world-nodejs12\"}": "input props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"guide-hello_world-nodejs12\"}",
+	"input args props: {}": "input args props: {}",
+	"props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"guide-hello_world-nodejs12\"}": "props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"guide-hello_world-nodejs12\"}",
+	"event: ": "event: ",
+	"get listTriggers: {\"triggers\":[]}": "get listTriggers: {\"triggers\":[]}",
+	"guide/guide-hello_world-nodejs12 async invoke success.\n": "guide/guide-hello_world-nodejs12 async invoke success.\n",
+	"guide/guide-hello_world-nodejs12 async invoke success.\n request id: c30c8868-333e-4bd1-ab33-8ed5ef74873f": "guide/guide-hello_world-nodejs12 async invoke success.\n request id: c30c8868-333e-4bd1-ab33-8ed5ef74873f",
+	"guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: d4dde5e2-236f-4572-9f15-58adac0d5ed1": "guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: d4dde5e2-236f-4572-9f15-58adac0d5ed1",
+	"guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: 27872d4f-44aa-4b4c-8deb-3a1295965791\n": "guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: 27872d4f-44aa-4b4c-8deb-3a1295965791\n",
+	"\nguide/guide-hello_world-nodejs12 async invoke success.\nrequest id: f1798899-985a-4d02-9556-d0882d0d6ccf\n": "\nguide/guide-hello_world-nodejs12 async invoke success.\nrequest id: f1798899-985a-4d02-9556-d0882d0d6ccf\n"
 }
