@@ -15,21 +15,17 @@ export default class FcRemoteInvoke {
   }
 
   async handlerInputs(inputs: InputProps): Promise<any> {
-    const credentials: ICredentials = await core.getCredential(inputs?.project?.access);
-
     // 去除 args 的行首以及行尾的空格
     const args: string = (inputs?.args || '').replace(/(^\s*)|(\s*$)/g, '');
     logger.debug(`input args: ${args}`);
 
     const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
       boolean: ['help', 'event-stdin'],
-      string: ['invocation-type', 'event', 'event-file', 'region', 'service-name', 'function-name', 'qualifier'],
+      string: ['invocation-type', 'event', 'event-file', 'region', 'domain-name','service-name', 'function-name', 'qualifier'],
       alias: {
         'help': 'h',
         'event': 'e',
-        'invocation-type': 't',
         'event-file': 'f',
-        'event-stdin': 's',
       }
     });
 
@@ -37,18 +33,17 @@ export default class FcRemoteInvoke {
     logger.debug(`command parse: ${JSON.stringify(argsData)}`);
     if (argsData.help) {
       return {
-        credentials,
+        credentials: inputs.credentials,
         isHelp: true,
       };
     }
 
-    // await StdoutFormatter.initStdout();
-
     const {
       e: event,
       f: eventFile,
-      s: eventStdin,
-      t: invocationType = 'sync',
+      'event-file': eventStdin,
+      'invocation-type': invocationType = 'sync',
+      'domain-name': domainName,
     } = argsData;
     const eventPayload = { event, eventFile, eventStdin };
     // @ts-ignore: 判断三个值有几个真
@@ -63,30 +58,27 @@ export default class FcRemoteInvoke {
     if (!['sync', 'async'].includes(invocationType)) {
       throw new Error('invocation-type enum value sync, async.');
     }
+    if (!domainName && !inputs?.credentials) {
+      inputs.credentials = await core.getCredential(inputs?.project?.access);
+    }
 
     logger.debug(`input props: ${JSON.stringify(inputs.props)}`);
 
-    let props: IProperties = {
-      region: argsData.region,
-      serviceName: argsData['service-name'],
-      functionName: argsData['function-name'],
+    const props: IProperties = {
+      region: argsData.region || inputs.props?.region,
+      serviceName: argsData['service-name'] || inputs.props?.serviceName,
+      functionName: argsData['function-name'] || inputs.props?.functionName,
+      domainName: domainName || inputs.props?.domainName,
+      qualifier: argsData.qualifier || inputs.props?.qualifier,
     };
     logger.debug(`input args props: ${JSON.stringify(props)}`);
-
-    if (!isProperties(props)) {
-      props = inputs.props;
-    }
-    logger.debug(`props: ${JSON.stringify(props)}`);
-
     if (!isProperties(props)) {
       throw new Error('region/serviceName(service-name)/functionName(function-name) can not be empty.');
     }
 
-    props.qualifier = argsData.qualifier || inputs.props?.qualifier;
-
     return {
       props,
-      credentials,
+      credentials: inputs.credentials,
       eventPayload,
       isHelp: false,
       invocationType: _.upperFirst(invocationType),
@@ -113,7 +105,7 @@ export default class FcRemoteInvoke {
       return;
     }
 
-    const remoteInvoke = new RemoteInvoke(props.region, credentials);
+    const remoteInvoke = new RemoteInvoke(props.region, credentials, props.domainName);
     await remoteInvoke.invoke(props, eventPayload, { invocationType });
   }
 }

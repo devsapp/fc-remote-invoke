@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import got from 'got';
 import Client from './client';
 import { IProperties, IEventPayload } from '../interface/entity';
 import Event from './event';
@@ -8,9 +9,11 @@ export default class RemoteInvoke {
   fcClient: any;
   accountId: string;
 
-  constructor(region: string, credentials) {
-    this.accountId = credentials.AccountID;
-    this.fcClient = Client.buildFcClient(region, credentials);
+  constructor(region: string, credentials, domainName) {
+    if (!domainName) {
+      this.accountId = credentials.AccountID;
+      this.fcClient = Client.buildFcClient(region, credentials);
+    }
   }
 
   async invoke (props: IProperties, eventPayload: IEventPayload, { invocationType }) {
@@ -21,8 +24,12 @@ export default class RemoteInvoke {
       region,
       serviceName,
       functionName,
+      domainName,
       qualifier,
     } = props;
+    if (domainName) {
+      return this.requestDomain(domainName, event);
+    }
     const httpTriggers = await this.getHttpTrigger(serviceName, functionName)
 
     const payload: any = { event, serviceName, functionName, qualifier };
@@ -32,15 +39,25 @@ export default class RemoteInvoke {
       await this.eventInvoke(payload);
     } else {
       payload.region = region;
-      try {
-        payload.event = event ? JSON.parse(event) : {};
-      } catch (ex) {
-        logger.debug(ex);
-        throw new Error('handler event error. Example: https://github.com/devsapp/fc-remote-invoke/blob/master/example/http.json');
-      }
+      payload.event = this.getJsonEvent(event);
       
       await this.httpInvoke(payload);
     }
+  }
+
+  async requestDomain(url: string, event: string) {
+    const payload = this.getJsonEvent(event);
+    if (_.isEmpty(payload.headers)) {
+      payload.headers = {};
+    }
+    payload.headers['X-Fc-Log-Type'] = 'Tail';
+    
+    const { body, headers } = await got(url, payload);
+      
+    this.showLog(headers['x-fc-log-result']);
+    logger.log('\nFC Invoke Result:', 'green');
+    console.log(body);
+    logger.log('\n');
   }
 
   async getHttpTrigger(serviceName, functionName) {
@@ -69,18 +86,10 @@ export default class RemoteInvoke {
         'X-Fc-Invocation-Type': invocationType
       }, qualifier);
 
-      const log = rs.headers['x-fc-log-result'];
-
-      if (log) {
-        logger.log('========= FC invoke Logs begin =========', 'yellow');
-        const decodedLog = Buffer.from(log, 'base64');
-        logger.log(decodedLog.toString());
-        logger.log('========= FC invoke Logs end =========', 'yellow');
-
-        logger.log('\nFC Invoke Result:', 'green');
-        console.log(rs.data);
-        console.log('\n');
-      }
+      this.showLog(rs.headers['x-fc-log-result']);
+      logger.log('\nFC Invoke Result:', 'green');
+      console.log(rs.data);
+      console.log('\n');
     } else {
       const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Invocation-Type': invocationType
@@ -137,13 +146,8 @@ export default class RemoteInvoke {
     logger.debug(`end invoke.`);
 
     if (resp) {
-      const log = resp.headers['x-fc-log-result'];
-      if (log) {
-        logger.log('\n========= FC invoke Logs begin =========', 'yellow');
-        const decodedLog = Buffer.from(log, 'base64')
-        logger.log(decodedLog.toString())
-        logger.log('========= FC invoke Logs end =========', 'yellow');
-      }
+      this.showLog(resp.headers['x-fc-log-result']);
+
       logger.log('\nFC Invoke Result:', 'green');
       console.log(resp.data);
       console.log('\n');
@@ -182,6 +186,24 @@ export default class RemoteInvoke {
       method,
       path: p,
       body: postBody
+    }
+  }
+
+  private showLog(log) {
+    if (log) {
+      logger.log('========= FC invoke Logs begin =========', 'yellow');
+      const decodedLog = Buffer.from(log, 'base64');
+      logger.log(decodedLog.toString());
+      logger.log('========= FC invoke Logs end =========', 'yellow');
+    }
+  }
+
+  private getJsonEvent(event: string) {
+    try {
+      return event ? JSON.parse(event) : {};
+    } catch (ex) {
+      logger.debug(ex);
+      throw new Error('handler event error. Example: https://github.com/devsapp/fc-remote-invoke/blob/master/example/http.json');
     }
   }
 }

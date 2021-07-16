@@ -13,13 +13,11 @@ export default [
       {
         name: 'invocation-type',
         description: 'Invocation type: optional value "async"|"sync", default value "sync" (default: "sync")',
-        alias: 't',
         type: String,
       },
       {
         name: 'event',
         description: 'Event data (strings) passed to the function during invocation (default: "").Http function format refers to [https://github.com/devsapp/fc-remote-invoke#特别说明]',
-        alias: 'e',
         type: String,
       },
       {
@@ -31,7 +29,6 @@ export default [
       {
         name: 'event-stdin',
         description: 'Read from standard input, to support script pipeline.Http function format refers to [https://github.com/devsapp/fc-remote-invoke#特别说明]',
-        alias: 's',
         type: Boolean,
       },
       {
@@ -47,6 +44,11 @@ export default [
       {
         name: 'function-name',
         description: 'Specify function name in cli mode',
+        type: String,
+      },
+      {
+        name: 'domain-name',
+        description: 'Specify custom domain name in cli mode',
         type: String,
       },
     ],
