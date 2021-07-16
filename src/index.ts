@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as core from '@serverless-devs/core';
 import logger from './common/logger';
 import HELP from './common/help';
-import { InputProps, ICredentials, isProperties, IProperties } from './interface/entity';
+import { InputProps, isProperties, IProperties } from './interface/entity';
 // import StdoutFormatter from './common/stdout-formatter';
 import RemoteInvoke from './lib/remote-invoke';
 

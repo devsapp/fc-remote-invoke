@@ -2,10 +2,11 @@ import { IProperties, IEventPayload } from '../interface/entity';
 export default class RemoteInvoke {
     fcClient: any;
     accountId: string;
-    constructor(region: string, credentials: any);
+    constructor(region: string, credentials: any, domainName: any);
     invoke(props: IProperties, eventPayload: IEventPayload, { invocationType }: {
         invocationType: any;
     }): Promise<void>;
+    requestDomain(url: string, event: string): Promise<void>;
     getHttpTrigger(serviceName: any, functionName: any): Promise<any>;
     eventInvoke({ serviceName, functionName, event, qualifier, invocationType }: {
         serviceName: any;
@@ -33,4 +34,6 @@ export default class RemoteInvoke {
         path: any;
         body: any;
     };
+    private showLog;
+    private getJsonEvent;
 }

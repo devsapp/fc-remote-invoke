@@ -24,6 +24,7 @@ export interface IProperties {
     serviceName: string;
     functionName: string;
     qualifier?: string;
+    domainName?: string;
 }
 export declare function isProperties(args: any): args is IProperties;
 export interface IEventPayload {
