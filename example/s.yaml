@@ -7,5 +7,5 @@ services:
     props:
       region: cn-shenzhen
       serviceName: guide
-      # functionName: guide-hello_world-nodejs12
-      functionName: hhh
+      functionName: guide-hello_world-nodejs12
+      # functionName: hhh

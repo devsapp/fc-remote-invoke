@@ -16,5 +16,20 @@
 	"guide/guide-hello_world-nodejs12 async invoke success.\n request id: c30c8868-333e-4bd1-ab33-8ed5ef74873f": "guide/guide-hello_world-nodejs12 async invoke success.\n request id: c30c8868-333e-4bd1-ab33-8ed5ef74873f",
 	"guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: d4dde5e2-236f-4572-9f15-58adac0d5ed1": "guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: d4dde5e2-236f-4572-9f15-58adac0d5ed1",
 	"guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: 27872d4f-44aa-4b4c-8deb-3a1295965791\n": "guide/guide-hello_world-nodejs12 async invoke success.\nrequest id: 27872d4f-44aa-4b4c-8deb-3a1295965791\n",
-	"\nguide/guide-hello_world-nodejs12 async invoke success.\nrequest id: f1798899-985a-4d02-9556-d0882d0d6ccf\n": "\nguide/guide-hello_world-nodejs12 async invoke success.\nrequest id: f1798899-985a-4d02-9556-d0882d0d6ccf\n"
+	"\nguide/guide-hello_world-nodejs12 async invoke success.\nrequest id: f1798899-985a-4d02-9556-d0882d0d6ccf\n": "\nguide/guide-hello_world-nodejs12 async invoke success.\nrequest id: f1798899-985a-4d02-9556-d0882d0d6ccf\n",
+	"input args: ": "input args: ",
+	"command parse: {}": "command parse: {}",
+	"input props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"hhh\"}": "input props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"hhh\"}",
+	"input args props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"hhh\"}": "input args props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"hhh\"}",
+	"get listTriggers: {\"triggers\":[{\"triggerName\":\"defaultTrigger\",\"description\":\"\",\"triggerId\":\"0c824580-2f4f-4c88-b45c-f953bc71181a\",\"sourceArn\":null,\"triggerType\":\"http\",\"invocationRole\":null,\"qualifier\":null,\"triggerConfig\":{\"methods\":[\"GET\",\"POST\"],\"authType\":\"anonymous\"},\"createdTime\":\"2021-04-02T07:34:07Z\",\"lastModifiedTime\":\"2021-07-16T08:47:37Z\"}]}": "get listTriggers: {\"triggers\":[{\"triggerName\":\"defaultTrigger\",\"description\":\"\",\"triggerId\":\"0c824580-2f4f-4c88-b45c-f953bc71181a\",\"sourceArn\":null,\"triggerType\":\"http\",\"invocationRole\":null,\"qualifier\":null,\"triggerConfig\":{\"methods\":[\"GET\",\"POST\"],\"authType\":\"anonymous\"},\"createdTime\":\"2021-04-02T07:34:07Z\",\"lastModifiedTime\":\"2021-07-16T08:47:37Z\"}]}",
+	"https://1899690531354629.cn-shenzhen.fc.aliyuncs.com/2016-08-15/proxy/guide/hhh/": "https://1899690531354629.cn-shenzhen.fc.aliyuncs.com/2016-08-15/proxy/guide/hhh/",
+	"method is GET.": "method is GET.",
+	"start invoke.": "start invoke.",
+	"end invoke.": "end invoke.",
+	"========= FC invoke Logs begin =========": "========= FC invoke Logs begin =========",
+	"FC Invoke Start RequestId: 56c854f8-b34c-4a2a-a578-64ea26ea022b\r\nload code for handler:index.handler\r\nFC Invoke End RequestId: 56c854f8-b34c-4a2a-a578-64ea26ea022b\r\n\nDuration: 24.77 ms, Billed Duration: 25 ms, Memory Size: 128 MB, Max Memory Used: 49.52 MB": "FC Invoke Start RequestId: 56c854f8-b34c-4a2a-a578-64ea26ea022b\r\nload code for handler:index.handler\r\nFC Invoke End RequestId: 56c854f8-b34c-4a2a-a578-64ea26ea022b\r\n\nDuration: 24.77 ms, Billed Duration: 25 ms, Memory Size: 128 MB, Max Memory Used: 49.52 MB",
+	"========= FC invoke Logs end =========": "========= FC invoke Logs end =========",
+	"\nFC Invoke Result:": "\nFC Invoke Result:",
+	"input args props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"guide-hello_world-nodejs12\"}": "input args props: {\"region\":\"cn-shenzhen\",\"serviceName\":\"guide\",\"functionName\":\"guide-hello_world-nodejs12\"}",
+	"FC Invoke Start RequestId: 59635ac4-38ab-48e2-a7fe-c56e435e46ee\r\nload code for handler:index.handler\r\n2021-07-29T01:40:22.922Z 59635ac4-38ab-48e2-a7fe-c56e435e46ee [verbose] \r\nFC Invoke End RequestId: 59635ac4-38ab-48e2-a7fe-c56e435e46ee\r\n\nDuration: 14.06 ms, Billed Duration: 15 ms, Memory Size: 128 MB, Max Memory Used: 49.02 MB": "FC Invoke Start RequestId: 59635ac4-38ab-48e2-a7fe-c56e435e46ee\r\nload code for handler:index.handler\r\n2021-07-29T01:40:22.922Z 59635ac4-38ab-48e2-a7fe-c56e435e46ee [verbose] \r\nFC Invoke End RequestId: 59635ac4-38ab-48e2-a7fe-c56e435e46ee\r\n\nDuration: 14.06 ms, Billed Duration: 15 ms, Memory Size: 128 MB, Max Memory Used: 49.02 MB"
 }

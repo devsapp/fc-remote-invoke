@@ -2,7 +2,7 @@ import { IProperties, IEventPayload } from '../interface/entity';
 export default class RemoteInvoke {
     fcClient: any;
     accountId: string;
-    constructor(region: string, credentials: any, domainName: any);
+    constructor(fcClient: any, accountId: string);
     invoke(props: IProperties, eventPayload: IEventPayload, { invocationType }: {
         invocationType: any;
     }): Promise<void>;

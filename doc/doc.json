@@ -35,28 +35,30 @@
 					]
 				},
 				{
-					"id": 9,
+					"id": 12,
 					"name": "handlerInputs",
 					"kind": 2048,
 					"kindString": "Method",
-					"flags": {},
+					"flags": {
+						"isPrivate": true
+					},
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 17,
-							"character": 21
+							"line": 46,
+							"character": 29
 						}
 					],
 					"signatures": [
 						{
-							"id": 10,
+							"id": 13,
 							"name": "handlerInputs",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 11,
+									"id": 14,
 									"name": "inputs",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -81,23 +83,21 @@
 					]
 				},
 				{
-					"id": 12,
+					"id": 4,
 					"name": "invoke",
 					"kind": 2048,
 					"kindString": "Method",
-					"flags": {
-						"isPublic": true
-					},
+					"flags": {},
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 93,
-							"character": 21
+							"line": 16,
+							"character": 14
 						}
 					],
 					"signatures": [
 						{
-							"id": 13,
+							"id": 5,
 							"name": "invoke",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -108,7 +108,7 @@
 							},
 							"parameters": [
 								{
-									"id": 14,
+									"id": 6,
 									"name": "inputs",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -134,28 +134,30 @@
 					]
 				},
 				{
-					"id": 4,
+					"id": 7,
 					"name": "report",
 					"kind": 2048,
 					"kindString": "Method",
-					"flags": {},
+					"flags": {
+						"isPrivate": true
+					},
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 10,
-							"character": 14
+							"line": 39,
+							"character": 22
 						}
 					],
 					"signatures": [
 						{
-							"id": 5,
+							"id": 8,
 							"name": "report",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 6,
+									"id": 9,
 									"name": "componentName",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -166,7 +168,7 @@
 									}
 								},
 								{
-									"id": 7,
+									"id": 10,
 									"name": "command",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -177,7 +179,7 @@
 									}
 								},
 								{
-									"id": 8,
+									"id": 11,
 									"name": "accountID",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -214,16 +216,16 @@
 					"title": "Methods",
 					"kind": 2048,
 					"children": [
-						9,
 						12,
-						4
+						4,
+						7
 					]
 				}
 			],
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 9,
+					"line": 10,
 					"character": 35
 				}
 			]
