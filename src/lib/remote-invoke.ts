@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import got from 'got';
-import Client from './client';
 import { IProperties, IEventPayload } from '../interface/entity';
 import Event from './event';
 import logger from '../common/logger';
@@ -9,11 +8,9 @@ export default class RemoteInvoke {
   fcClient: any;
   accountId: string;
 
-  constructor(region: string, credentials, domainName) {
-    if (!domainName) {
-      this.accountId = credentials.AccountID;
-      this.fcClient = Client.buildFcClient(region, credentials);
-    }
+  constructor(fcClient: any, accountId: string) {
+    this.fcClient = fcClient;
+    this.accountId = accountId;
   }
 
   async invoke (props: IProperties, eventPayload: IEventPayload, { invocationType }) {

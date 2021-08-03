@@ -5,16 +5,45 @@ import HELP from './common/help';
 import { InputProps, isProperties, IProperties } from './interface/entity';
 // import StdoutFormatter from './common/stdout-formatter';
 import RemoteInvoke from './lib/remote-invoke';
+import Client from './lib/client';
 
 export default class FcRemoteInvoke {
-  async report(componentName: string, command: string, accountID: string): Promise<void> {
+  /**
+   * event 函数本地调试
+   * @param inputs
+   * @returns
+   */
+  async invoke(inputs: InputProps): Promise<any> {
+    const {
+      props,
+      eventPayload,
+      credentials,
+      isHelp,
+      invocationType,
+    } = await this.handlerInputs(inputs);
+    await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
+
+    if (isHelp) {
+      core.help(HELP);
+      return;
+    }
+
+    let fcClient;
+    if (!props.domainName) {
+      fcClient = await Client.buildFcClient(props.region, credentials);
+    }
+    const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
+    await remoteInvoke.invoke(props, eventPayload, { invocationType });
+  }
+
+  private async report(componentName: string, command: string, accountID: string): Promise<void> {
     core.reportComponent(componentName, {
       command,
       uid: accountID,
     });
   }
 
-  async handlerInputs(inputs: InputProps): Promise<any> {
+  private async handlerInputs(inputs: InputProps): Promise<any> {
     // 去除 args 的行首以及行尾的空格
     const args: string = (inputs?.args || '').replace(/(^\s*)|(\s*$)/g, '');
     logger.debug(`input args: ${args}`);
@@ -85,27 +114,4 @@ export default class FcRemoteInvoke {
     };
   }
 
-  /**
-   * event 函数本地调试
-   * @param inputs
-   * @returns
-   */
-  public async invoke(inputs: InputProps): Promise<any> {
-    const {
-      props,
-      eventPayload,
-      credentials,
-      isHelp,
-      invocationType,
-    } = await this.handlerInputs(inputs);
-    await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
-
-    if (isHelp) {
-      core.help(HELP);
-      return;
-    }
-
-    const remoteInvoke = new RemoteInvoke(props.region, credentials, props.domainName);
-    await remoteInvoke.invoke(props, eventPayload, { invocationType });
-  }
 }
