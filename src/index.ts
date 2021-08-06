@@ -48,7 +48,7 @@ export default class FcRemoteInvoke {
     const args: string = (inputs?.args || '').replace(/(^\s*)|(\s*$)/g, '');
     logger.debug(`input args: ${args}`);
 
-    const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
+    const parsedArgs: {[key: string]: any} = core.commandParse({ ...inputs, args }, {
       boolean: ['help', 'event-stdin'],
       string: ['invocation-type', 'event', 'event-file', 'region', 'domain-name','service-name', 'function-name', 'qualifier'],
       alias: {
@@ -70,7 +70,7 @@ export default class FcRemoteInvoke {
     const {
       e: event,
       f: eventFile,
-      'event-file': eventStdin,
+      'event-stdin': eventStdin,
       'invocation-type': invocationType = 'sync',
       'domain-name': domainName,
     } = argsData;
