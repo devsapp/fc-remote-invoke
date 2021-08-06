@@ -70,7 +70,7 @@ export default class FcRemoteInvoke {
     const {
       e: event,
       f: eventFile,
-      'event-file': eventStdin,
+      'event-stdin': eventStdin,
       'invocation-type': invocationType = 'sync',
       'domain-name': domainName,
     } = argsData;
