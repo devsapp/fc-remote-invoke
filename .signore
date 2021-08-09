@@ -14,3 +14,4 @@ package-lok.json
 
 README.md
 ./example
+./.signore
