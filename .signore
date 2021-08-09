@@ -5,3 +5,12 @@ LICENSE
 package-lok.json
 .prettierrc.js
 .gitignore
+
+.github
+.idea
+.vscode
+.DS_Store
+.git
+
+README.md
+./example
