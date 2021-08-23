@@ -118,18 +118,18 @@ export default class RemoteInvoke {
       logger.debug(`method is ${mt}.`);
       logger.debug(`start invoke.`);
       if (mt === 'GET') {
-        resp = await this.fcClient.get(p, queries, headers);
+        resp = await this.fcClient.costom_request('GET', p, queries, null, headers);
       } else if (mt === 'POST') {
-        resp = await this.fcClient.post(p, body, headers, queries);
+        resp = await this.fcClient.costom_request('POST', p, queries, body, headers);
       } else if (mt === 'PUT') {
-        resp = await this.fcClient.put(p, body, headers);
+        resp = await this.fcClient.costom_request('PUT', p, null, body, headers);
       } else if (mt === 'DELETE') {
-        resp = await this.fcClient.request('DELETE', p, queries, null, headers);
-        /* else if (method.toLocaleUpperCase() === 'PATCH') {
-        resp = await this.fcClient.request('PATCH', p, queries, body, headers);
+        resp = await this.fcClient.costom_request('DELETE', p, queries, null, headers);
+      }
+      else if (method.toLocaleUpperCase() === 'PATCH') {
+        resp = await this.fcClient.costom_request('PATCH', p, queries, body, headers);
       } else if (method.toLocaleUpperCase() === 'HEAD') {
-        resp = await this.fcClient.request('HEAD', p, queries, body, headers);
-      } */
+        resp = await this.fcClient.costom_request('HEAD', p, queries, body, headers);
       } else {
         logger.error(`Does not support ${method} requests temporarily.`);
       }
@@ -142,12 +142,19 @@ export default class RemoteInvoke {
     }
     logger.debug(`end invoke.`);
 
-    if (resp) {
+    if (resp?.err) {
       this.showLog(resp.headers['x-fc-log-result']);
-
-      logger.log('\nFC Invoke Result:', 'green');
+      logger.log(`\nFC Invoke Result[code: ${resp.code}]:`, 'red');
       console.log(resp.data);
       console.log('\n');
+    } else {
+      if (resp) {
+        this.showLog(resp.headers['x-fc-log-result']);
+
+        logger.log('\nFC Invoke Result[code: ${resp.code}]:', 'green');
+        console.log(resp.data);
+        console.log('\n');
+      }
     }
   }
 

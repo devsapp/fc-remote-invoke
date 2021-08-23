@@ -25,8 +25,7 @@
     "start": "npm run watch",
     "watch": "tsc -w",
     "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf lib",
-    "build": "ncc build src/index.ts -m -e @serverless-devs/core -o lib",
-    "postbuild": "rm -rf package-lock.json && rm -rf node_modules"
+    "build": "ncc build src/index.ts -m -e @serverless-devs/core -o lib"
   },
   "dependencies": {
     "@alicloud/fc2": "^2.2.2",
