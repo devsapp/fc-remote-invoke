@@ -5,7 +5,6 @@ import HELP from './common/help';
 import { InputProps, isProperties, IProperties } from './interface/entity';
 // import StdoutFormatter from './common/stdout-formatter';
 import RemoteInvoke from './lib/remote-invoke';
-import Client from './lib/client';
 
 export default class FcRemoteInvoke {
   /**
@@ -30,7 +29,8 @@ export default class FcRemoteInvoke {
 
     let fcClient;
     if (!props.domainName) {
-      fcClient = await Client.buildFcClient(props.region, credentials);
+      const fcCommon = await core.loadComponent('devsapp/fc-common');
+      fcClient = await fcCommon.makeFcClient(inputs);
     }
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
     await remoteInvoke.invoke(props, eventPayload, { invocationType });

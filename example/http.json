@@ -1,11 +1,16 @@
 {
-  "body": 123,
   "method": "POST",
   "headers": {
-    "key": "value"
+    "key": "value",
+    "Content-Type": "application/json"
   },
   "queries": {
     "key": "value"
   },
-  "path": "string"
+  "body": {
+    "abc": "body",
+    "tmpNasZipPath": "/tmpNasZipPath",
+    "body": "body"
+  },
+  "path": "download"
 }

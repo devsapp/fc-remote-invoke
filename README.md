@@ -23,9 +23,9 @@ services:
 
 
 ````
-$ s exec -- invoke --invocation-type sync --event ${payload}
-$ s exec -- invoke --invocation-type async --event-file ${path}
-$ s exec -- invoke --event-stdin
+$ s invoke --invocation-type sync --event ${payload}
+$ s invoke --invocation-type async --event-file ${path}
+$ s invoke --event-stdin
 ````
 
 ## CLI 用法

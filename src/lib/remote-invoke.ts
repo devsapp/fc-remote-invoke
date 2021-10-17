@@ -101,7 +101,7 @@ export default class RemoteInvoke {
     const q = qualifier ? `.${qualifier}` : '';
     event.path = `/proxy/${serviceName}${q}/${functionName}/${event.path || ''}`;
 
-    logger.log(`https://${this.accountId}.${region}.fc.aliyuncs.com/2016-08-15/proxy/${serviceName}${q}/${functionName}/`);
+    logger.log(`Request url: https://${this.accountId}.${region}.fc.aliyuncs.com/2016-08-15/proxy/${serviceName}${q}/${functionName}/`);
     await this.request(event)
   }
 
@@ -109,8 +109,11 @@ export default class RemoteInvoke {
    * @param event: { body, headers, method, queries, path }
    * path 组装后的路径 /proxy/serviceName/functionName/path ,
    */
-  async request (event) {
-    const { headers, queries, method, path: p, body } = this.handlerHttpParmase(event);
+  async request(event) {
+    const { headers = {}, queries, method = 'GET', path: p, body } = event;
+    if (!headers['X-Fc-Log-Type']) {
+      headers['X-Fc-Log-Type'] = 'Tail';
+    }
 
     let resp;
     try {
@@ -125,8 +128,7 @@ export default class RemoteInvoke {
         resp = await this.fcClient.costom_request('PUT', p, null, body, headers);
       } else if (mt === 'DELETE') {
         resp = await this.fcClient.costom_request('DELETE', p, queries, null, headers);
-      }
-      else if (method.toLocaleUpperCase() === 'PATCH') {
+      } else if (method.toLocaleUpperCase() === 'PATCH') {
         resp = await this.fcClient.costom_request('PATCH', p, queries, body, headers);
       } else if (method.toLocaleUpperCase() === 'HEAD') {
         resp = await this.fcClient.costom_request('HEAD', p, queries, body, headers);
@@ -155,41 +157,6 @@ export default class RemoteInvoke {
         console.log(resp.data);
         console.log('\n');
       }
-    }
-  }
-
-  handlerHttpParmase (event) {
-    const { body = '', headers = {}, method = 'GET', queries = '', path: p = '' } = event;
-
-    let postBody;
-    if (body) {
-      let buff = null;
-      if (Buffer.isBuffer(body)) {
-        buff = body;
-        headers['content-type'] = 'application/octet-stream';
-      } else if (typeof body === 'string') {
-        buff = Buffer.from(body, 'utf8');
-        headers['content-type'] = 'application/octet-stream';
-      } else if (typeof body.pipe === 'function') {
-        buff = body;
-        headers['content-type'] = 'application/octet-stream';
-      } else {
-        buff = Buffer.from(JSON.stringify(body), 'utf8');
-        headers['content-type'] = 'application/json';
-      }
-      postBody = buff;
-    }
-
-    if (!headers['X-Fc-Log-Type']) {
-      headers['X-Fc-Log-Type'] = 'Tail';
-    }
-
-    return {
-      headers,
-      queries,
-      method,
-      path: p,
-      body: postBody
     }
   }
 
