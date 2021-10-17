@@ -16,9 +16,10 @@ export default class File {
       let input;
 
       if (eventFile === '-') { // read from stdin
-        logger.log('Reading event data from stdin, which can be ended with Enter then Ctrl+D')
+        logger.log('Reading event data from stdin, which can be ended with Enter then Ctrl+D');
         input = process.stdin;
       } else {
+        logger.log('Reading event file content:');
         input = fs.createReadStream(eventFile, {
           encoding: 'utf-8'
         })
@@ -32,7 +33,10 @@ export default class File {
       rl.on('line', (line) => {
         event += line
       })
-      rl.on('close', () => resolve(event))
+      rl.on('close', () => {
+        logger.log('');
+        resolve(event)
+      })
 
       rl.on('SIGINT', () => reject(new Error('^C')))
     })
