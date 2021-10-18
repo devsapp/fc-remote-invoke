@@ -27,13 +27,6 @@ export default class RemoteInvoke {
      * path 组装后的路径 /proxy/serviceName/functionName/path ,
      */
     request(event: any): Promise<void>;
-    handlerHttpParmase(event: any): {
-        headers: any;
-        queries: any;
-        method: any;
-        path: any;
-        body: any;
-    };
     private showLog;
     private getJsonEvent;
 }

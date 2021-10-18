@@ -1,8 +1,7 @@
 node_modules
 .s
-tsconfig.json
 LICENSE
-package-lok.json
+package-lock.json
 .prettierrc.js
 .gitignore
 
