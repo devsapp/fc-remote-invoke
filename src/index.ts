@@ -30,7 +30,7 @@ export default class FcRemoteInvoke {
     let fcClient;
     if (!props.domainName) {
       const fcCommon = await core.loadComponent('devsapp/fc-common');
-      fcClient = await fcCommon.makeFcClient(inputs);
+      fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region }});
     }
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
     await remoteInvoke.invoke(props, eventPayload, { invocationType });
