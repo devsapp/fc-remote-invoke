@@ -13,7 +13,7 @@ export default class RemoteInvoke {
     this.accountId = accountId;
   }
 
-  async invoke (props: IProperties, eventPayload: IEventPayload, { invocationType }) {
+  async invoke (props: IProperties, eventPayload: IEventPayload, { invocationType, statefulAsyncInvocationId }) {
     const event = await Event.eventPriority(eventPayload);
     logger.debug(`event: ${event}`);
 
@@ -32,12 +32,13 @@ export default class RemoteInvoke {
     const payload: any = { event, serviceName, functionName, qualifier };
     if (_.isEmpty(httpTriggers)) {
       payload.invocationType = invocationType;
+      payload.statefulAsyncInvocationId = statefulAsyncInvocationId;
       payload.event = event;
       await this.eventInvoke(payload);
     } else {
       payload.region = region;
       payload.event = this.getJsonEvent(event);
-      
+
       await this.httpInvoke(payload);
     }
   }
@@ -48,9 +49,9 @@ export default class RemoteInvoke {
       payload.headers = {};
     }
     payload.headers['X-Fc-Log-Type'] = 'Tail';
-    
+
     const { body, headers } = await got(url, payload);
-      
+
     this.showLog(headers['x-fc-log-result']);
     logger.log('\nFC Invoke Result:', 'green');
     console.log(body);
@@ -74,13 +75,14 @@ export default class RemoteInvoke {
     functionName,
     event,
     qualifier = 'LATEST',
-    invocationType
+    invocationType,
+    statefulAsyncInvocationId
   }) {
 
     if (invocationType === 'Sync') {
       const rs = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Log-Type': 'Tail',
-        'X-Fc-Invocation-Type': invocationType
+        'X-Fc-Invocation-Type': invocationType,
       }, qualifier);
 
       this.showLog(rs.headers['x-fc-log-result']);
@@ -88,8 +90,10 @@ export default class RemoteInvoke {
       console.log(rs.data);
       console.log('\n');
     } else {
+      logger.debug(`Stateful async invocation id: ${statefulAsyncInvocationId}`);
       const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
-        'X-Fc-Invocation-Type': invocationType
+        'X-Fc-Invocation-Type': invocationType,
+        'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId,
       }, qualifier);
       const rId = headers['x-fc-request-id'];
 

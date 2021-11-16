@@ -19,6 +19,7 @@ export default class FcRemoteInvoke {
       credentials,
       isHelp,
       invocationType,
+      statefulAsyncInvocationId,
     } = await this.handlerInputs(inputs);
     await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
 
@@ -33,7 +34,7 @@ export default class FcRemoteInvoke {
       fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region }});
     }
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
-    await remoteInvoke.invoke(props, eventPayload, { invocationType });
+    await remoteInvoke.invoke(props, eventPayload, { invocationType, statefulAsyncInvocationId });
   }
 
   private async report(componentName: string, command: string, accountID: string): Promise<void> {
@@ -50,7 +51,7 @@ export default class FcRemoteInvoke {
 
     const parsedArgs: {[key: string]: any} = core.commandParse({ ...inputs, args }, {
       boolean: ['help', 'event-stdin'],
-      string: ['invocation-type', 'event', 'event-file', 'region', 'domain-name','service-name', 'function-name', 'qualifier'],
+      string: ['invocation-type', 'event', 'event-file', 'region', 'domain-name','service-name', 'function-name', 'qualifier', 'stateful-async-invocation-id'],
       alias: {
         'help': 'h',
         'event': 'e',
@@ -73,6 +74,7 @@ export default class FcRemoteInvoke {
       'event-stdin': eventStdin,
       'invocation-type': invocationType = 'sync',
       'domain-name': domainName,
+      'stateful-async-invocation-id': statefulAsyncInvocationId,
     } = argsData;
     const eventPayload = { event, eventFile, eventStdin };
     // @ts-ignore: 判断三个值有几个真
@@ -111,6 +113,7 @@ export default class FcRemoteInvoke {
       eventPayload,
       isHelp: false,
       invocationType: _.upperFirst(invocationType),
+      statefulAsyncInvocationId,
     };
   }
 
