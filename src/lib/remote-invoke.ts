@@ -146,14 +146,14 @@ export default class RemoteInvoke {
 
     if (resp?.err) {
       this.showLog(resp.headers['x-fc-log-result']);
-      logger.log(`\nFC Invoke Result[code: ${resp.code}]:`, 'red');
+      logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'red');
       console.log(resp.data);
       console.log('\n');
     } else {
       if (resp) {
         this.showLog(resp.headers['x-fc-log-result']);
 
-        logger.log('\nFC Invoke Result[code: ${resp.code}]:', 'green');
+        logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'green');
         console.log(resp.data);
         console.log('\n');
       }

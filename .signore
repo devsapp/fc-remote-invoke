@@ -14,3 +14,4 @@ package-lock.json
 README.md
 ./example
 ./.signore
+./src
