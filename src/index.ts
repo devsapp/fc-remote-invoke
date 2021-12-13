@@ -56,6 +56,7 @@ export default class FcRemoteInvoke {
         'help': 'h',
         'event': 'e',
         'event-file': 'f',
+        'event-stdin': 's',
       }
     });
 
