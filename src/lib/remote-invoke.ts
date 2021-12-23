@@ -82,6 +82,7 @@ export default class RemoteInvoke {
     if (invocationType === 'Sync') {
       const rs = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Log-Type': 'Tail',
+        'X-Fc-Invocation-Code-Version': 'Latest',
         'X-Fc-Invocation-Type': invocationType,
       }, qualifier);
 
@@ -92,6 +93,7 @@ export default class RemoteInvoke {
     } else {
       logger.debug(`Stateful async invocation id: ${statefulAsyncInvocationId}`);
       const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
+        'X-Fc-Invocation-Code-Version': 'Latest',
         'X-Fc-Invocation-Type': invocationType,
         'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId,
       }, qualifier);
@@ -117,6 +119,9 @@ export default class RemoteInvoke {
     const { headers = {}, queries, method = 'GET', path: p, body } = event;
     if (!headers['X-Fc-Log-Type']) {
       headers['X-Fc-Log-Type'] = 'Tail';
+    }
+    if (!headers['X-Fc-Invocation-Code-Version']) {
+      headers['X-Fc-Invocation-Code-Version'] = 'Latest';
     }
 
     let resp;
