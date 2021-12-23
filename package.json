@@ -13,7 +13,7 @@
   "author": "Serverless-Devs",
   "contributors": [],
   "license": "MIT",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
   },
@@ -24,11 +24,12 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "tsc -w",
-    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf lib",
-    "build": "ncc build src/index.ts -m -e @serverless-devs/core -o lib"
+    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
+    "esbuild": "esbuild src/index.ts --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --external:@serverless-devs/core --outfile=dist/index.js",
+    "build": "npm run esbuild"
   },
   "dependencies": {
-    "@serverless-devs/core": "^0.0.*",
+    "@serverless-devs/core": "latest",
     "form-data": "^4.0.0",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
@@ -46,6 +47,6 @@
     "ts-node": "^8.10.2",
     "typedoc": "^0.20.35",
     "typescript": "^3.9.7",
-    "@vercel/ncc": "^0.24.0"
+    "esbuild": "^0.14.0"
   }
 }
