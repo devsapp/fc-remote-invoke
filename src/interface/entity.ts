@@ -25,8 +25,10 @@ export interface IProperties {
   region: string;
   serviceName: string;
   functionName: string;
+  runtime?: string;
   qualifier?: string;
   domainName?: string;
+  timeout?: string;
 }
 export function isProperties(args: any): args is IProperties {
   if (!args) {
