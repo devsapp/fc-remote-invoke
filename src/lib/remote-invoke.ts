@@ -95,7 +95,7 @@ export default class RemoteInvoke {
       const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Invocation-Code-Version': 'Latest',
         'X-Fc-Invocation-Type': invocationType,
-        'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId,
+        'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId || "",
       }, qualifier);
       const rId = headers['x-fc-request-id'];
 
