@@ -15,6 +15,7 @@ export default class FcRemoteInvoke {
   async invoke(inputs: InputProps): Promise<any> {
     const {
       props,
+      timeout,
       eventPayload,
       credentials,
       isHelp,
@@ -31,7 +32,7 @@ export default class FcRemoteInvoke {
     let fcClient;
     if (!props.domainName) {
       const fcCommon = await core.loadComponent('devsapp/fc-common');
-      fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region }});
+      fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region, timeout }});
     }
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
     await remoteInvoke.invoke(props, eventPayload, { invocationType, statefulAsyncInvocationId });
@@ -51,6 +52,7 @@ export default class FcRemoteInvoke {
 
     const parsedArgs: {[key: string]: any} = core.commandParse({ ...inputs, args }, {
       boolean: ['help', 'event-stdin'],
+      number: ['timeout'],
       string: ['invocation-type', 'event', 'event-file', 'region', 'domain-name','service-name', 'function-name', 'qualifier', 'stateful-async-invocation-id'],
       alias: {
         'help': 'h',
@@ -108,8 +110,20 @@ export default class FcRemoteInvoke {
       throw new Error('region/serviceName(service-name)/functionName(function-name) can not be empty.');
     }
 
+    // 超时时间获取的原理：https://github.com/devsapp/fc/issues/480
+    const propsTimeout = argsData.timeout || inputs.props?.timeout;
+    let timeout = 600;
+    if (_.isNumber(propsTimeout)) {
+      if (_.isEmpty(inputs.props?.runtime) || inputs.props?.runtime === 'custom-container') {
+        timeout = propsTimeout + 7 * 60;
+      } else {
+        timeout = propsTimeout + 2 * 60;
+      }
+    }
+
     return {
       props,
+      timeout,
       credentials: inputs.credentials,
       eventPayload,
       isHelp: false,
