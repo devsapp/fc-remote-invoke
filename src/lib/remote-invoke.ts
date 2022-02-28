@@ -117,17 +117,17 @@ export default class RemoteInvoke {
       logger.debug(`method is ${mt}.`);
       logger.debug(`start invoke.`);
       if (mt === 'GET') {
-        resp = await this.fcClient.costom_request('GET', p, queries, null, headers);
+        resp = await this.fcClient.custom_request('GET', p, queries, null, headers);
       } else if (mt === 'POST') {
-        resp = await this.fcClient.costom_request('POST', p, queries, body, headers);
+        resp = await this.fcClient.custom_request('POST', p, queries, body, headers);
       } else if (mt === 'PUT') {
-        resp = await this.fcClient.costom_request('PUT', p, null, body, headers);
+        resp = await this.fcClient.custom_request('PUT', p, null, body, headers);
       } else if (mt === 'DELETE') {
-        resp = await this.fcClient.costom_request('DELETE', p, queries, null, headers);
+        resp = await this.fcClient.custom_request('DELETE', p, queries, null, headers);
       } else if (method.toLocaleUpperCase() === 'PATCH') {
-        resp = await this.fcClient.costom_request('PATCH', p, queries, body, headers);
+        resp = await this.fcClient.custom_request('PATCH', p, queries, body, headers);
       } else if (method.toLocaleUpperCase() === 'HEAD') {
-        resp = await this.fcClient.costom_request('HEAD', p, queries, body, headers);
+        resp = await this.fcClient.custom_request('HEAD', p, queries, body, headers);
       } else {
         invokeVm.stop();
         logger.error(`Does not support ${method} requests temporarily.`);
