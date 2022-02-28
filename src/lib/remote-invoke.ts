@@ -22,12 +22,8 @@ export default class RemoteInvoke {
       region,
       serviceName,
       functionName,
-      domainName,
       qualifier,
     } = props;
-    if (domainName) {
-      return this.requestDomain(domainName, event);
-    }
     const httpTriggers = await this.getHttpTrigger(serviceName, functionName)
 
     const payload: any = { event, serviceName, functionName, qualifier };
@@ -38,25 +34,10 @@ export default class RemoteInvoke {
       await this.eventInvoke(payload);
     } else {
       payload.region = region;
-      payload.event = this.getJsonEvent(event);
+      payload.event = RemoteInvoke.getJsonEvent(event);
 
       await this.httpInvoke(payload);
     }
-  }
-
-  async requestDomain(url: string, event: string) {
-    const payload = this.getJsonEvent(event);
-    if (_.isEmpty(payload.headers)) {
-      payload.headers = {};
-    }
-    payload.headers['X-Fc-Log-Type'] = 'Tail';
-
-    const { body, headers } = await got(url, payload);
-
-    this.showLog(headers['x-fc-log-result']);
-    logger.log('\nFC Invoke Result:', 'green');
-    console.log(body);
-    logger.log('\n');
   }
 
   async getHttpTrigger(serviceName, functionName) {
@@ -89,7 +70,7 @@ export default class RemoteInvoke {
       }, qualifier);
       invokeVm.stop();
 
-      this.showLog(rs.headers['x-fc-log-result']);
+      RemoteInvoke.showLog(rs.headers['x-fc-log-result']);
       logger.log('\nFC Invoke Result:', 'green');
       console.log(rs.data);
       console.log('\n');
@@ -163,13 +144,13 @@ export default class RemoteInvoke {
     logger.debug(`end invoke.`);
 
     if (resp?.err) {
-      this.showLog(resp.headers['x-fc-log-result']);
+      RemoteInvoke.showLog(resp.headers['x-fc-log-result']);
       logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'red');
       console.log(resp.data);
       console.log('\n');
     } else {
       if (resp) {
-        this.showLog(resp.headers['x-fc-log-result']);
+        RemoteInvoke.showLog(resp.headers['x-fc-log-result']);
 
         logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'green');
         console.log(resp.data);
@@ -178,7 +159,24 @@ export default class RemoteInvoke {
     }
   }
 
-  private showLog(log) {
+  static async requestDomain(url: string, eventPayload: IEventPayload) {
+    const event = await Event.eventPriority(eventPayload);
+    logger.debug(`event: ${event}`);
+    const payload = RemoteInvoke.getJsonEvent(event);
+    if (_.isEmpty(payload.headers)) {
+      payload.headers = {};
+    }
+    payload.headers['X-Fc-Log-Type'] = 'Tail';
+
+    const { body, headers } = await got(url, payload);
+
+    this.showLog(headers['x-fc-log-result']);
+    logger.log('\nFC Invoke Result:', 'green');
+    console.log(body);
+    logger.log('\n');
+  }
+
+  static showLog(log) {
     if (log) {
       logger.log('========= FC invoke Logs begin =========', 'yellow');
       const decodedLog = Buffer.from(log, 'base64');
@@ -187,7 +185,7 @@ export default class RemoteInvoke {
     }
   }
 
-  private getJsonEvent(event: string) {
+  static getJsonEvent(event: string) {
     try {
       return event ? JSON.parse(event) : {};
     } catch (ex) {

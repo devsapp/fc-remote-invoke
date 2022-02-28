@@ -29,11 +29,13 @@ export default class FcRemoteInvoke {
       return;
     }
 
-    let fcClient;
-    if (!props.domainName) {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region, timeout }});
+
+    if (props.domainName) {
+      await RemoteInvoke.requestDomain(props.domainName, eventPayload);
+      return;
     }
+    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region, timeout }});
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
     await remoteInvoke.invoke(props, eventPayload, { invocationType, statefulAsyncInvocationId });
   }
