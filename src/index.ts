@@ -15,7 +15,7 @@ export default class FcRemoteInvoke {
   async invoke(inputs: InputProps): Promise<any> {
     const {
       props,
-      timeout,
+      fcClient,
       eventPayload,
       credentials,
       isHelp,
@@ -29,11 +29,12 @@ export default class FcRemoteInvoke {
       return;
     }
 
-    let fcClient;
-    if (!props.domainName) {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      fcClient = await fcCommon.makeFcClient({ ...inputs, props: { region: props.region, timeout }});
+
+    if (props.domainName) {
+      await RemoteInvoke.requestDomain(props.domainName, eventPayload);
+      return;
     }
+
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
     await remoteInvoke.invoke(props, eventPayload, { invocationType, statefulAsyncInvocationId });
   }
@@ -121,9 +122,17 @@ export default class FcRemoteInvoke {
       }
     }
 
+    const fcCore = await core.loadComponent('devsapp/fc-core');
+    const fcClient = await fcCore.makeFcClient({
+      access: inputs?.project?.access,
+      credentials: inputs.credentials,
+      region: props.region,
+      timeout,
+    });
+
     return {
       props,
-      timeout,
+      fcClient,
       credentials: inputs.credentials,
       eventPayload,
       isHelp: false,

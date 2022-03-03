@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import got from 'got';
+import { spinner } from '@serverless-devs/core';
 import { IProperties, IEventPayload } from '../interface/entity';
 import Event from './event';
 import logger from '../common/logger';
@@ -21,12 +22,8 @@ export default class RemoteInvoke {
       region,
       serviceName,
       functionName,
-      domainName,
       qualifier,
     } = props;
-    if (domainName) {
-      return this.requestDomain(domainName, event);
-    }
     const httpTriggers = await this.getHttpTrigger(serviceName, functionName)
 
     const payload: any = { event, serviceName, functionName, qualifier };
@@ -37,25 +34,10 @@ export default class RemoteInvoke {
       await this.eventInvoke(payload);
     } else {
       payload.region = region;
-      payload.event = this.getJsonEvent(event);
+      payload.event = RemoteInvoke.getJsonEvent(event);
 
       await this.httpInvoke(payload);
     }
-  }
-
-  async requestDomain(url: string, event: string) {
-    const payload = this.getJsonEvent(event);
-    if (_.isEmpty(payload.headers)) {
-      payload.headers = {};
-    }
-    payload.headers['X-Fc-Log-Type'] = 'Tail';
-
-    const { body, headers } = await got(url, payload);
-
-    this.showLog(headers['x-fc-log-result']);
-    logger.log('\nFC Invoke Result:', 'green');
-    console.log(body);
-    logger.log('\n');
   }
 
   async getHttpTrigger(serviceName, functionName) {
@@ -80,23 +62,27 @@ export default class RemoteInvoke {
   }) {
 
     if (invocationType === 'Sync') {
+      const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}`);
       const rs = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Log-Type': 'Tail',
         'X-Fc-Invocation-Code-Version': 'Latest',
         'X-Fc-Invocation-Type': invocationType,
       }, qualifier);
+      invokeVm.stop();
 
-      this.showLog(rs.headers['x-fc-log-result']);
+      RemoteInvoke.showLog(rs.headers['x-fc-log-result']);
       logger.log('\nFC Invoke Result:', 'green');
       console.log(rs.data);
       console.log('\n');
     } else {
       logger.debug(`Stateful async invocation id: ${statefulAsyncInvocationId}`);
+      const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}`);
       const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
         'X-Fc-Invocation-Code-Version': 'Latest',
         'X-Fc-Invocation-Type': invocationType,
         'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId || "",
       }, qualifier);
+      invokeVm.stop();
       const rId = headers['x-fc-request-id'];
 
       logger.log(`\n${serviceName}/${functionName} async invoke success.\n${rId ? `request id: ${rId}\n` : ''}`, 'green');
@@ -125,26 +111,30 @@ export default class RemoteInvoke {
     }
 
     let resp;
+    const invokeVm = spinner(`invoke path: ${p}`);
     try {
       const mt = method.toLocaleUpperCase();
       logger.debug(`method is ${mt}.`);
       logger.debug(`start invoke.`);
       if (mt === 'GET') {
-        resp = await this.fcClient.costom_request('GET', p, queries, null, headers);
+        resp = await this.fcClient.custom_request('GET', p, queries, null, headers);
       } else if (mt === 'POST') {
-        resp = await this.fcClient.costom_request('POST', p, queries, body, headers);
+        resp = await this.fcClient.custom_request('POST', p, queries, body, headers);
       } else if (mt === 'PUT') {
-        resp = await this.fcClient.costom_request('PUT', p, null, body, headers);
+        resp = await this.fcClient.custom_request('PUT', p, null, body, headers);
       } else if (mt === 'DELETE') {
-        resp = await this.fcClient.costom_request('DELETE', p, queries, null, headers);
+        resp = await this.fcClient.custom_request('DELETE', p, queries, null, headers);
       } else if (method.toLocaleUpperCase() === 'PATCH') {
-        resp = await this.fcClient.costom_request('PATCH', p, queries, body, headers);
+        resp = await this.fcClient.custom_request('PATCH', p, queries, body, headers);
       } else if (method.toLocaleUpperCase() === 'HEAD') {
-        resp = await this.fcClient.costom_request('HEAD', p, queries, body, headers);
+        resp = await this.fcClient.custom_request('HEAD', p, queries, body, headers);
       } else {
+        invokeVm.stop();
         logger.error(`Does not support ${method} requests temporarily.`);
       }
+      invokeVm.stop();
     } catch (e) {
+      invokeVm.stop();
       logger.debug(e);
       if (e.message === 'Unexpected token r in JSON at position 0' && e.stack.includes('/fc2/lib/client.js') && e.stack.includes('at Client.request')) {
         throw new Error('The body in http responss is not in json format, but the content-type in response header is application/json. We recommend that you make the format of the response body be consistent with the content-type in response header.');
@@ -154,13 +144,13 @@ export default class RemoteInvoke {
     logger.debug(`end invoke.`);
 
     if (resp?.err) {
-      this.showLog(resp.headers['x-fc-log-result']);
+      RemoteInvoke.showLog(resp.headers['x-fc-log-result']);
       logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'red');
       console.log(resp.data);
       console.log('\n');
     } else {
       if (resp) {
-        this.showLog(resp.headers['x-fc-log-result']);
+        RemoteInvoke.showLog(resp.headers['x-fc-log-result']);
 
         logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'green');
         console.log(resp.data);
@@ -169,7 +159,24 @@ export default class RemoteInvoke {
     }
   }
 
-  private showLog(log) {
+  static async requestDomain(url: string, eventPayload: IEventPayload) {
+    const event = await Event.eventPriority(eventPayload);
+    logger.debug(`event: ${event}`);
+    const payload = RemoteInvoke.getJsonEvent(event);
+    if (_.isEmpty(payload.headers)) {
+      payload.headers = {};
+    }
+    payload.headers['X-Fc-Log-Type'] = 'Tail';
+
+    const { body, headers } = await got(url, payload);
+
+    this.showLog(headers['x-fc-log-result']);
+    logger.log('\nFC Invoke Result:', 'green');
+    console.log(body);
+    logger.log('\n');
+  }
+
+  static showLog(log) {
     if (log) {
       logger.log('========= FC invoke Logs begin =========', 'yellow');
       const decodedLog = Buffer.from(log, 'base64');
@@ -178,7 +185,7 @@ export default class RemoteInvoke {
     }
   }
 
-  private getJsonEvent(event: string) {
+  static getJsonEvent(event: string) {
     try {
       return event ? JSON.parse(event) : {};
     } catch (ex) {
