@@ -93,7 +93,7 @@ export default class RemoteInvoke {
     const q = qualifier ? `.${qualifier}` : '';
     event.path = `/proxy/${serviceName}${q}/${functionName}/${event.path || ''}`;
 
-    logger.log(`Request url: https://${this.accountId}.${region}.fc.aliyuncs.com/2016-08-15/proxy/${serviceName}${q}/${functionName}/`);
+    logger.log(`Request url: ${this.fcClient.endpoint}/2016-08-15/proxy/${serviceName}${q}/${functionName}/`);
     await this.request(event)
   }
 
