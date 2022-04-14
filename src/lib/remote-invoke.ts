@@ -5,6 +5,8 @@ import { IProperties, IEventPayload } from '../interface/entity';
 import Event from './event';
 import logger from '../common/logger';
 
+const getInstanceId = (headers) => _.get(headers, 'x-fc-instance-id');
+
 export default class RemoteInvoke {
   fcClient: any;
   accountId: string;
@@ -70,7 +72,7 @@ export default class RemoteInvoke {
       }, qualifier);
       invokeVm.stop();
 
-      RemoteInvoke.showLog(rs.headers['x-fc-log-result']);
+      RemoteInvoke.showLog(rs.headers['x-fc-log-result'], getInstanceId(rs.headers));
       logger.log('\nFC Invoke Result:', 'green');
       console.log(rs.data);
       console.log('\n');
@@ -144,13 +146,13 @@ export default class RemoteInvoke {
     logger.debug(`end invoke.`);
 
     if (resp?.err) {
-      RemoteInvoke.showLog(resp.headers['x-fc-log-result']);
+      RemoteInvoke.showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
       logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'red');
       console.log(resp.data);
       console.log('\n');
     } else {
       if (resp) {
-        RemoteInvoke.showLog(resp.headers['x-fc-log-result']);
+        RemoteInvoke.showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
 
         logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'green');
         console.log(resp.data);
@@ -170,18 +172,21 @@ export default class RemoteInvoke {
 
     const { body, headers } = await got(url, payload);
 
-    this.showLog(headers['x-fc-log-result']);
+    this.showLog(headers['x-fc-log-result'], getInstanceId(headers));
     logger.log('\nFC Invoke Result:', 'green');
     console.log(body);
     logger.log('\n');
   }
 
-  static showLog(log) {
+  static showLog(log, instanceId) {
     if (log) {
       logger.log('========= FC invoke Logs begin =========', 'yellow');
       const decodedLog = Buffer.from(log, 'base64');
       logger.log(decodedLog.toString());
       logger.log('========= FC invoke Logs end =========', 'yellow');
+    }
+    if (instanceId) {
+      logger.log(`\n\x1B[32mFC Invoke instanceId:\x1B[0m ${instanceId}`);
     }
   }
 
