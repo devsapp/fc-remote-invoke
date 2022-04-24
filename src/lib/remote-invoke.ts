@@ -16,29 +16,22 @@ export default class RemoteInvoke {
     this.accountId = accountId;
   }
 
-  async invoke (props: IProperties, eventPayload: IEventPayload, { invocationType, statefulAsyncInvocationId }) {
+  async invoke(props: IProperties, eventPayload: IEventPayload, parames) {
     const event = await Event.eventPriority(eventPayload);
     logger.debug(`event: ${event}`);
 
-    const {
-      region,
-      serviceName,
-      functionName,
-      qualifier,
-    } = props;
-    const httpTriggers = await this.getHttpTrigger(serviceName, functionName)
+    const { region, serviceName, functionName, qualifier } = props;
+    const httpTriggers = await this.getHttpTrigger(serviceName, functionName);
 
     const payload: any = { event, serviceName, functionName, qualifier };
     if (_.isEmpty(httpTriggers)) {
-      payload.invocationType = invocationType;
-      payload.statefulAsyncInvocationId = statefulAsyncInvocationId;
       payload.event = event;
-      await this.eventInvoke(payload);
+      await this.eventInvoke(payload, parames);
     } else {
       payload.region = region;
       payload.event = RemoteInvoke.getJsonEvent(event);
 
-      await this.httpInvoke(payload);
+      await this.httpInvoke(payload, parames);
     }
   }
 
@@ -46,30 +39,32 @@ export default class RemoteInvoke {
     const { data } = await this.fcClient.listTriggers(serviceName, functionName);
     logger.debug(`get listTriggers: ${JSON.stringify(data)}`);
 
-    if (_.isEmpty(data.triggers)) { return [] }
+    if (_.isEmpty(data.triggers)) {
+      return [];
+    }
 
-    const httpTrigger = data.triggers.filter(t => t.triggerType === 'http' || t.triggerType === 'https')
-    if (_.isEmpty(httpTrigger)) { return [] }
+    const httpTrigger = data.triggers.filter((t) => t.triggerType === 'http' || t.triggerType === 'https');
+    if (_.isEmpty(httpTrigger)) {
+      return [];
+    }
 
     return httpTrigger;
   }
 
-  async eventInvoke({
-    serviceName,
-    functionName,
-    event,
-    qualifier = 'LATEST',
-    invocationType,
-    statefulAsyncInvocationId
-  }) {
-
+  async eventInvoke({ serviceName, functionName, event, qualifier = 'LATEST' }, { invocationType, statefulAsyncInvocationId }) {
     if (invocationType === 'Sync') {
       const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}`);
-      const rs = await this.fcClient.invokeFunction(serviceName, functionName, event, {
-        'X-Fc-Log-Type': 'Tail',
-        'X-Fc-Invocation-Code-Version': 'Latest',
-        'X-Fc-Invocation-Type': invocationType,
-      }, qualifier);
+      const rs = await this.fcClient.invokeFunction(
+        serviceName,
+        functionName,
+        event,
+        {
+          'X-Fc-Log-Type': 'Tail',
+          'X-Fc-Invocation-Code-Version': 'Latest',
+          'X-Fc-Invocation-Type': invocationType,
+        },
+        qualifier,
+      );
       invokeVm.stop();
 
       RemoteInvoke.showLog(rs.headers['x-fc-log-result'], getInstanceId(rs.headers));
@@ -79,11 +74,17 @@ export default class RemoteInvoke {
     } else {
       logger.debug(`Stateful async invocation id: ${statefulAsyncInvocationId}`);
       const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}`);
-      const { headers } = await this.fcClient.invokeFunction(serviceName, functionName, event, {
-        'X-Fc-Invocation-Code-Version': 'Latest',
-        'X-Fc-Invocation-Type': invocationType,
-        'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId || "",
-      }, qualifier);
+      const { headers } = await this.fcClient.invokeFunction(
+        serviceName,
+        functionName,
+        event,
+        {
+          'X-Fc-Invocation-Code-Version': 'Latest',
+          'X-Fc-Invocation-Type': invocationType,
+          'X-Fc-Stateful-Async-Invocation-Id': statefulAsyncInvocationId || '',
+        },
+        qualifier,
+      );
       invokeVm.stop();
       const rId = headers['x-fc-request-id'];
 
@@ -91,26 +92,33 @@ export default class RemoteInvoke {
     }
   }
 
-  async httpInvoke({ region, serviceName, functionName, event, qualifier }) {
+  async httpInvoke({ region, serviceName, functionName, event, qualifier }, parames) {
     const q = qualifier ? `.${qualifier}` : '';
     event.path = `/proxy/${serviceName}${q}/${functionName}/${event.path || ''}`;
 
-    logger.log(`Request url: ${this.fcClient.endpoint}/2016-08-15/proxy/${serviceName}${q}/${functionName}/`);
-    await this.request(event)
+    logger.log(`\nRequest url: ${this.fcClient.endpoint}/2016-08-15/proxy/${serviceName}${q}/${functionName}/\n`);
+    await this.request(event, parames);
   }
 
   /**
    * @param event: { body, headers, method, queries, path }
    * path 组装后的路径 /proxy/serviceName/functionName/path ,
    */
-  async request(event) {
+  async request(event, { invocationType, statefulAsyncInvocationId }) {
     const { headers = {}, queries, method = 'GET', path: p, body } = event;
+    if (statefulAsyncInvocationId) {
+      _.set(headers, 'X-Fc-Stateful-Async-Invocation-Id', statefulAsyncInvocationId);
+    } else if (!headers['X-Fc-Stateful-Async-Invocation-Id']) {
+      _.set(headers, 'X-Fc-Stateful-Async-Invocation-Id', '');
+    }
+    if (invocationType) {
+      _.set(headers, 'X-Fc-Invocation-Type', invocationType);
+    }
+    const isAsync = _.get(headers, 'X-Fc-Invocation-Type', '').toLocaleLowerCase() === 'async';
     if (!headers['X-Fc-Log-Type']) {
-      headers['X-Fc-Log-Type'] = 'Tail';
+      headers['X-Fc-Log-Type'] = isAsync ? 'None' : 'Tail';
     }
-    if (!headers['X-Fc-Invocation-Code-Version']) {
-      headers['X-Fc-Invocation-Code-Version'] = 'Latest';
-    }
+    logger.debug(`headers: ${JSON.stringify(headers)}`);
 
     let resp;
     const invokeVm = spinner(`invoke path: ${p}`);
@@ -138,8 +146,14 @@ export default class RemoteInvoke {
     } catch (e) {
       invokeVm.stop();
       logger.debug(e);
-      if (e.message === 'Unexpected token r in JSON at position 0' && e.stack.includes('/fc2/lib/client.js') && e.stack.includes('at Client.request')) {
-        throw new Error('The body in http responss is not in json format, but the content-type in response header is application/json. We recommend that you make the format of the response body be consistent with the content-type in response header.');
+      if (
+        e.message === 'Unexpected token r in JSON at position 0' &&
+        e.stack.includes('/fc2/lib/client.js') &&
+        e.stack.includes('at Client.request')
+      ) {
+        throw new Error(
+          'The body in http responss is not in json format, but the content-type in response header is application/json. We recommend that you make the format of the response body be consistent with the content-type in response header.',
+        );
       }
       throw e;
     }
@@ -154,9 +168,15 @@ export default class RemoteInvoke {
       if (resp) {
         RemoteInvoke.showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
 
-        logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'green');
-        console.log(resp.data);
-        console.log('\n');
+        if (isAsync) {
+          logger.log(`\nFC Invoke Result:`, 'green');
+          logger.log(`Code: ${resp.code}`, 'green');
+          logger.log(`RequestId: ${_.get(resp, 'headers["x-fc-request-id"]', '')}\n`, 'green');
+        } else {
+          logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'green');
+          console.log(resp.data);
+          console.log('\n');
+        }
       }
     }
   }

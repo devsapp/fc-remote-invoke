@@ -13,22 +13,13 @@ export default class FcRemoteInvoke {
    * @returns
    */
   async invoke(inputs: InputProps): Promise<any> {
-    const {
-      props,
-      fcClient,
-      eventPayload,
-      credentials,
-      isHelp,
-      invocationType,
-      statefulAsyncInvocationId,
-    } = await this.handlerInputs(inputs);
+    const { props, fcClient, eventPayload, credentials, isHelp, invocationType, statefulAsyncInvocationId } = await this.handlerInputs(inputs);
     await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
 
     if (isHelp) {
       core.help(HELP);
       return;
     }
-
 
     if (props.domainName) {
       await RemoteInvoke.requestDomain(props.domainName, eventPayload);
@@ -51,17 +42,30 @@ export default class FcRemoteInvoke {
     const args: string = (inputs?.args || '').replace(/(^\s*)|(\s*$)/g, '');
     logger.debug(`input args: ${args}`);
 
-    const parsedArgs: {[key: string]: any} = core.commandParse({ ...inputs, args }, {
-      boolean: ['help', 'event-stdin'],
-      number: ['timeout'],
-      string: ['invocation-type', 'event', 'event-file', 'region', 'domain-name','service-name', 'function-name', 'qualifier', 'stateful-async-invocation-id'],
-      alias: {
-        'help': 'h',
-        'event': 'e',
-        'event-file': 'f',
-        'event-stdin': 's',
-      }
-    });
+    const parsedArgs: { [key: string]: any } = core.commandParse(
+      { ...inputs, args },
+      {
+        boolean: ['help', 'event-stdin'],
+        number: ['timeout'],
+        string: [
+          'invocation-type',
+          'event',
+          'event-file',
+          'region',
+          'domain-name',
+          'service-name',
+          'function-name',
+          'qualifier',
+          'stateful-async-invocation-id',
+        ],
+        alias: {
+          help: 'h',
+          event: 'e',
+          'event-file': 'f',
+          'event-stdin': 's',
+        },
+      },
+    );
 
     const argsData: any = parsedArgs?.data || {};
     logger.debug(`command parse: ${JSON.stringify(argsData)}`);
@@ -78,7 +82,7 @@ export default class FcRemoteInvoke {
       'event-stdin': eventStdin,
       'invocation-type': invocationType = 'sync',
       'domain-name': domainName,
-      'stateful-async-invocation-id': statefulAsyncInvocationId,
+      'stateful-async-invocation-id': statefulAsyncInvocationId = '',
     } = argsData;
     const eventPayload = { event, eventFile, eventStdin };
     // @ts-ignore: 判断三个值有几个真
@@ -140,5 +144,4 @@ export default class FcRemoteInvoke {
       statefulAsyncInvocationId,
     };
   }
-
 }
