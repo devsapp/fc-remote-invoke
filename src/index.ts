@@ -3,7 +3,6 @@ import * as core from '@serverless-devs/core';
 import logger from './common/logger';
 import HELP from './common/help';
 import { InputProps, isProperties, IProperties } from './interface/entity';
-// import StdoutFormatter from './common/stdout-formatter';
 import RemoteInvoke from './lib/remote-invoke';
 
 export default class FcRemoteInvoke {
@@ -14,7 +13,6 @@ export default class FcRemoteInvoke {
    */
   async invoke(inputs: InputProps): Promise<any> {
     const { props, fcClient, eventPayload, credentials, isHelp, invocationType, statefulAsyncInvocationId } = await this.handlerInputs(inputs);
-    await this.report('fc-remote-invoke', 'invoke', credentials?.AccountID);
 
     if (isHelp) {
       core.help(HELP);
@@ -28,13 +26,6 @@ export default class FcRemoteInvoke {
 
     const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
     await remoteInvoke.invoke(props, eventPayload, { invocationType, statefulAsyncInvocationId });
-  }
-
-  private async report(componentName: string, command: string, accountID: string): Promise<void> {
-    core.reportComponent(componentName, {
-      command,
-      uid: accountID,
-    });
   }
 
   private async handlerInputs(inputs: InputProps): Promise<any> {
