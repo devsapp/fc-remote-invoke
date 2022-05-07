@@ -6,7 +6,6 @@ import logger from '../common/logger';
 import { getStdin } from './stdin';
 
 export default class File {
-
   static async getEvent(eventFile) {
     let event = await getStdin(); // read from pipes
 
@@ -15,44 +14,47 @@ export default class File {
     return await new Promise((resolve, reject) => {
       let input;
 
-      if (eventFile === '-') { // read from stdin
+      if (eventFile === '-') {
+        // read from stdin
         logger.log('Reading event data from stdin, which can be ended with Enter then Ctrl+D');
         input = process.stdin;
       } else {
         logger.log('Reading event file content:');
         input = fs.createReadStream(eventFile, {
-          encoding: 'utf-8'
-        })
+          encoding: 'utf-8',
+        });
       }
       const rl = readline.createInterface({
         input,
-        output: process.stdout
-      })
+        output: process.stdout,
+      });
 
       event = '';
       rl.on('line', (line) => {
-        event += line
-      })
+        event += line;
+      });
       rl.on('close', () => {
         logger.log('');
-        resolve(event)
-      })
+        resolve(event);
+      });
 
-      rl.on('SIGINT', () => reject(new Error('^C')))
-    })
+      rl.on('SIGINT', () => reject(new Error('^C')));
+    });
   }
 
   static async eventPriority(eventPriority) {
     let eventFile: string;
 
-    if (isString(eventPriority.event)) {
-      return eventPriority.event;
-    } else if (eventPriority.eventStdin) {
+    if (eventPriority.eventStdin) {
       eventFile = '-';
     } else if (eventPriority.eventFile) {
       eventFile = path.resolve(process.cwd(), eventPriority.eventFile);
+    } else if (isString(eventPriority.event)) {
+      return eventPriority.event;
     }
 
-    return await this.getEvent(eventFile)
+    const event = await this.getEvent(eventFile);
+    logger.debug(`event: ${event}`);
+    return event;
   }
 }

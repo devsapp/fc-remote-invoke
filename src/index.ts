@@ -1,9 +1,10 @@
-import _ from 'lodash';
-import * as core from '@serverless-devs/core';
+import { CatchableError, getCredential, lodash as _, help, commandParse } from '@serverless-devs/core';
 import logger from './common/logger';
 import HELP from './common/help';
 import { InputProps, isProperties, IProperties } from './interface/entity';
 import RemoteInvoke from './lib/remote-invoke';
+import Event from './lib/event';
+import { getJsonEvent, requestDomain } from './lib/utils';
 
 export default class FcRemoteInvoke {
   /**
@@ -12,53 +13,48 @@ export default class FcRemoteInvoke {
    * @returns
    */
   async invoke(inputs: InputProps): Promise<any> {
-    const { props, fcClient, eventPayload, credentials, isHelp, invocationType, statefulAsyncInvocationId } = await this.handlerInputs(inputs);
+    const { props, credPayload, event, isHelp, parames, timeout } = await this.handlerInputs(inputs);
 
     if (isHelp) {
-      core.help(HELP);
+      help(HELP);
       return;
     }
 
     if (props.domainName) {
-      await RemoteInvoke.requestDomain(props.domainName, eventPayload);
+      const payload = getJsonEvent(event);
+      await requestDomain(props.domainName, payload);
       return;
     }
 
-    const remoteInvoke = new RemoteInvoke(fcClient, credentials.AccountID);
-    await remoteInvoke.invoke(props, eventPayload, { invocationType, statefulAsyncInvocationId });
+    const remoteInvoke = new RemoteInvoke(credPayload);
+    await remoteInvoke.init(inputs.project?.access, timeout, props.region);
+    await remoteInvoke.invoke(props, event, parames);
   }
 
   private async handlerInputs(inputs: InputProps): Promise<any> {
-    // 去除 args 的行首以及行尾的空格
-    const args: string = (inputs?.args || '').replace(/(^\s*)|(\s*$)/g, '');
-    logger.debug(`input args: ${args}`);
-
-    const parsedArgs: { [key: string]: any } = core.commandParse(
-      { ...inputs, args },
-      {
-        boolean: ['help', 'event-stdin'],
-        number: ['timeout'],
-        string: [
-          'invocation-type',
-          'event',
-          'event-file',
-          'region',
-          'domain-name',
-          'service-name',
-          'function-name',
-          'qualifier',
-          'stateful-async-invocation-id',
-        ],
-        alias: {
-          help: 'h',
-          event: 'e',
-          'event-file': 'f',
-          'event-stdin': 's',
-        },
+    logger.debug(`input props: ${JSON.stringify(inputs.props)}`);
+    const opts = {
+      boolean: ['help', 'event-stdin'],
+      number: ['timeout'],
+      string: [
+        'invocation-type',
+        'event',
+        'event-file',
+        'qualifier',
+        'stateful-async-invocation-id',
+        'region',
+        'domain-name',
+        'service-name',
+        'function-name',
+        'sdk-version',
+      ],
+      alias: {
+        help: 'h',
+        'event-file': 'f',
+        'event-stdin': 's',
       },
-    );
-
-    const argsData: any = parsedArgs?.data || {};
+    };
+    const argsData: { [key: string]: any } = commandParse(inputs, opts)?.data || {};
     logger.debug(`command parse: ${JSON.stringify(argsData)}`);
     if (argsData.help) {
       return {
@@ -68,31 +64,23 @@ export default class FcRemoteInvoke {
     }
 
     const {
-      e: event,
+      event = '',
       f: eventFile,
       'event-stdin': eventStdin,
       'invocation-type': invocationType = 'sync',
+      'sdk-version': sdkVersion,
       'domain-name': domainName,
       'stateful-async-invocation-id': statefulAsyncInvocationId = '',
     } = argsData;
-    const eventPayload = { event, eventFile, eventStdin };
-    // @ts-ignore: 判断三个值有几个真
-    const eventFlag = !!event + !!eventFile + !!eventStdin;
 
-    if (eventFlag > 1) {
-      throw new Error('event | event-file | event-stdin must choose one.');
-    } else if (eventFlag === 0) {
-      eventPayload.event = '';
+    // @ts-ignore: 判断三个值有几个真
+    if (!!event + !!eventFile + !!eventStdin > 1) {
+      throw new CatchableError('event | event-file | event-stdin must choose one.');
     }
 
     if (!['sync', 'async'].includes(invocationType)) {
-      throw new Error('invocation-type enum value sync, async.');
+      throw new CatchableError('invocation-type enum value sync, async.');
     }
-    if (!domainName && !inputs?.credentials) {
-      inputs.credentials = await core.getCredential(inputs?.project?.access);
-    }
-
-    logger.debug(`input props: ${JSON.stringify(inputs.props)}`);
 
     const props: IProperties = {
       region: argsData.region || inputs.props?.region,
@@ -102,8 +90,18 @@ export default class FcRemoteInvoke {
       qualifier: argsData.qualifier || inputs.props?.qualifier,
     };
     logger.debug(`input args props: ${JSON.stringify(props)}`);
+
+    const eventPayload = await Event.eventPriority({ event, eventFile, eventStdin });
+    if (!_.isEmpty(domainName)) {
+      return { domainName, event: eventPayload };
+    }
+
     if (!isProperties(props)) {
-      throw new Error('region/serviceName(service-name)/functionName(function-name) can not be empty.');
+      throw new CatchableError('region/service-name/function-name can not be empty.');
+    }
+
+    if (_.isEmpty(inputs?.credentials)) {
+      inputs.credentials = await getCredential(inputs?.project?.access);
     }
 
     // 超时时间获取的原理：https://github.com/devsapp/fc/issues/480
@@ -117,22 +115,19 @@ export default class FcRemoteInvoke {
       }
     }
 
-    const fcCore = await core.loadComponent('devsapp/fc-core');
-    const fcClient = await fcCore.makeFcClient({
-      access: inputs?.project?.access,
-      credentials: inputs.credentials,
-      region: props.region,
-      timeout,
-    });
-
     return {
       props,
-      fcClient,
-      credentials: inputs.credentials,
-      eventPayload,
+      event: eventPayload,
       isHelp: false,
-      invocationType: _.upperFirst(invocationType),
-      statefulAsyncInvocationId,
+      parames: {
+        invocationType: _.upperFirst(invocationType),
+        statefulAsyncInvocationId,
+      },
+      timeout,
+      credPayload: {
+        credentials: inputs.credentials,
+        sdkVersion,
+      },
     };
   }
 }

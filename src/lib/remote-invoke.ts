@@ -1,41 +1,70 @@
-import _ from 'lodash';
-import got from 'got';
-import { spinner } from '@serverless-devs/core';
-import { IProperties, IEventPayload } from '../interface/entity';
-import Event from './event';
+import { spinner, lodash as _, CatchableError, loadComponent } from '@serverless-devs/core';
+import { IProperties } from '../interface/entity';
 import logger from '../common/logger';
-
-const getInstanceId = (headers) => _.get(headers, 'x-fc-instance-id');
+import { getJsonEvent, getInstanceId, showLog, requestDomain } from './utils';
 
 export default class RemoteInvoke {
+  fcCore: any;
   fcClient: any;
   accountId: string;
+  sdkVersion?: string;
+  private credentials: any;
 
-  constructor(fcClient: any, accountId: string) {
-    this.fcClient = fcClient;
-    this.accountId = accountId;
+  constructor(credPayload) {
+    this.sdkVersion = credPayload.sdkVersion;
+    this.credentials = credPayload.credentials;
+    this.accountId = credPayload.credentials.AccountID;
   }
 
-  async invoke(props: IProperties, eventPayload: IEventPayload, parames) {
-    const event = await Event.eventPriority(eventPayload);
-    logger.debug(`event: ${event}`);
+  async init(access, timeout, region) {
+    this.fcCore = await loadComponent('devsapp/fc-core');
+    this.fcClient = await this.fcCore.makeFcClient({
+      region,
+      access,
+      timeout,
+      credentials: this.credentials,
+    });
+  }
 
-    const { region, serviceName, functionName, qualifier } = props;
-    const httpTriggers = await this.getHttpTrigger(serviceName, functionName);
+  async invoke(props: IProperties, event, parames) {
+    const { serviceName, functionName, qualifier } = props;
+    const httpTrigger = await this.getHttpTrigger(serviceName, functionName, qualifier); // 一定是0个或者1个元素
+    logger.debug(`invoke http res: ${JSON.stringify(httpTrigger)}`);
 
     const payload: any = { event, serviceName, functionName, qualifier };
-    if (_.isEmpty(httpTriggers)) {
+    if (_.isEmpty(httpTrigger)) {
       payload.event = event;
-      await this.eventInvoke(payload, parames);
-    } else {
-      payload.region = region;
-      payload.event = RemoteInvoke.getJsonEvent(event);
-
-      await this.httpInvoke(payload, parames);
+      return await this.eventInvoke(payload, parames);
     }
+
+    const jsonEvent = getJsonEvent(event);
+
+    const urlInternet = _.get(httpTrigger, '0.urlInternet');
+    // 调用 2016-08-15 版本的使用方式
+    if (this.sdkVersion === '2016-08-15' || _.isEmpty(urlInternet)) {
+      logger.debug('invoke version 2016-08-15');
+      payload.event = jsonEvent;
+      return await this.httpInvoke(payload, parames);
+    }
+
+    const customPath = jsonEvent.path ? jsonEvent.path : '/';
+    const url = `${urlInternet}${customPath}`;
+    delete jsonEvent.path;
+
+    if (_.get(httpTrigger, '0.triggerConfig.authType')?.toLocaleLowerCase() === 'anonymous') {
+      logger.debug('invoke http anonymous');
+      return await requestDomain(url, jsonEvent);
+    }
+
+    const headers = Object.assign(this.fcClient.buildHeaders(), this.fcClient.headers, jsonEvent?.headers || {});
+    headers['X-Fc-Log-Type'] = 'Tail';
+    delete headers.host; // 携带 host 会导致请求失败
+    this.getSignature(headers, jsonEvent.method, customPath);
+
+    return await requestDomain(url, _.mergeWith(jsonEvent, { headers }));
   }
 
-  async getHttpTrigger(serviceName, functionName) {
+  async getHttpTrigger(serviceName, functionName, qualifier) {
     const { data } = await this.fcClient.listTriggers(serviceName, functionName);
     logger.debug(`get listTriggers: ${JSON.stringify(data)}`);
 
@@ -48,12 +77,25 @@ export default class RemoteInvoke {
       return [];
     }
 
-    return httpTrigger;
+    let assignQualifierHttpTrigger;
+    if (qualifier && qualifier.toLocaleLowerCase() !== 'latest') {
+      assignQualifierHttpTrigger = httpTrigger.filter((h) => qualifier === h.qualifier);
+    } else {
+      assignQualifierHttpTrigger = httpTrigger.filter((h) => !h.qualifier || h.qualifier?.toLocaleLowerCase() === 'latest');
+    }
+
+    if (_.isEmpty(assignQualifierHttpTrigger)) {
+      logger.warn(`Your function has an HTTP trigger, but no trigger is configured for the ${qualifier || 'LATEST'}.`);
+      logger.warn('Try calling with event mode.');
+      return [];
+    }
+
+    return assignQualifierHttpTrigger;
   }
 
   async eventInvoke({ serviceName, functionName, event, qualifier = 'LATEST' }, { invocationType, statefulAsyncInvocationId }) {
     if (invocationType === 'Sync') {
-      const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}`);
+      const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}\n`);
       const rs = await this.fcClient.invokeFunction(
         serviceName,
         functionName,
@@ -67,7 +109,7 @@ export default class RemoteInvoke {
       );
       invokeVm.stop();
 
-      RemoteInvoke.showLog(rs.headers['x-fc-log-result'], getInstanceId(rs.headers));
+      showLog(rs.headers['x-fc-log-result'], getInstanceId(rs.headers));
       logger.log('\nFC Invoke Result:', 'green');
       console.log(rs.data);
       console.log('\n');
@@ -92,20 +134,13 @@ export default class RemoteInvoke {
     }
   }
 
-  async httpInvoke({ region, serviceName, functionName, event, qualifier }, parames) {
+  async httpInvoke({ serviceName, functionName, event, qualifier }, { invocationType, statefulAsyncInvocationId }) {
     const q = qualifier ? `.${qualifier}` : '';
-    event.path = `/proxy/${serviceName}${q}/${functionName}/${event.path || ''}`;
+    const p = `/proxy/${serviceName}${q}/${functionName}/${event.path || ''}`;
 
     logger.log(`\nRequest url: ${this.fcClient.endpoint}/2016-08-15/proxy/${serviceName}${q}/${functionName}/\n`);
-    await this.request(event, parames);
-  }
 
-  /**
-   * @param event: { body, headers, method, queries, path }
-   * path 组装后的路径 /proxy/serviceName/functionName/path ,
-   */
-  async request(event, { invocationType, statefulAsyncInvocationId }) {
-    const { headers = {}, queries, method = 'GET', path: p, body } = event;
+    const { headers = {}, queries, method = 'GET', body } = event;
     if (statefulAsyncInvocationId) {
       _.set(headers, 'X-Fc-Stateful-Async-Invocation-Id', statefulAsyncInvocationId);
     } else if (!headers['X-Fc-Stateful-Async-Invocation-Id']) {
@@ -122,6 +157,8 @@ export default class RemoteInvoke {
 
     let resp;
     const invokeVm = spinner(`invoke path: ${p}`);
+    logger.log('');
+
     try {
       const mt = method.toLocaleUpperCase();
       logger.debug(`method is ${mt}.`);
@@ -151,7 +188,7 @@ export default class RemoteInvoke {
         e.stack.includes('/fc2/lib/client.js') &&
         e.stack.includes('at Client.request')
       ) {
-        throw new Error(
+        throw new CatchableError(
           'The body in http responss is not in json format, but the content-type in response header is application/json. We recommend that you make the format of the response body be consistent with the content-type in response header.',
         );
       }
@@ -160,13 +197,13 @@ export default class RemoteInvoke {
     logger.debug(`end invoke.`);
 
     if (resp?.err) {
-      RemoteInvoke.showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
+      showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
       logger.log(`\nFC Invoke Result[Code: ${resp.code}]:`, 'red');
       console.log(resp.data);
       console.log('\n');
     } else {
       if (resp) {
-        RemoteInvoke.showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
+        showLog(resp.headers['x-fc-log-result'], getInstanceId(resp.headers));
 
         if (isAsync) {
           logger.log(`\nFC Invoke Result:`, 'green');
@@ -181,41 +218,9 @@ export default class RemoteInvoke {
     }
   }
 
-  static async requestDomain(url: string, eventPayload: IEventPayload) {
-    const event = await Event.eventPriority(eventPayload);
-    logger.debug(`event: ${event}`);
-    const payload = RemoteInvoke.getJsonEvent(event);
-    if (_.isEmpty(payload.headers)) {
-      payload.headers = {};
-    }
-    payload.headers['X-Fc-Log-Type'] = 'Tail';
-
-    const { body, headers } = await got(url, payload);
-
-    this.showLog(headers['x-fc-log-result'], getInstanceId(headers));
-    logger.log('\nFC Invoke Result:', 'green');
-    console.log(body);
-    logger.log('\n');
-  }
-
-  static showLog(log, instanceId) {
-    if (log) {
-      logger.log('========= FC invoke Logs begin =========', 'yellow');
-      const decodedLog = Buffer.from(log, 'base64');
-      logger.log(decodedLog.toString());
-      logger.log('========= FC invoke Logs end =========', 'yellow');
-    }
-    if (instanceId) {
-      logger.log(`\n\x1B[32mFC Invoke instanceId:\x1B[0m ${instanceId}`);
-    }
-  }
-
-  static getJsonEvent(event: string) {
-    try {
-      return event ? JSON.parse(event) : {};
-    } catch (ex) {
-      logger.debug(ex);
-      throw new Error('handler event error. Example: https://github.com/devsapp/fc-remote-invoke/blob/master/example/http.json');
-    }
+  private getSignature(headers, method = 'GET', path) {
+    const { AccessKeyID, AccessKeySecret } = this.credentials;
+    var signature = this.fcCore.alicloudFc2.getSignature(AccessKeyID, AccessKeySecret, method, path, headers, {});
+    headers['authorization'] = signature;
   }
 }
