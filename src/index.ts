@@ -50,6 +50,7 @@ export default class FcRemoteInvoke {
       ],
       alias: {
         help: 'h',
+        'event': 'e',
         'event-file': 'f',
         'event-stdin': 's',
       },
