@@ -51,15 +51,17 @@ export default class RemoteInvoke {
     const url = `${urlInternet}${customPath}`;
     delete jsonEvent.path;
 
-    if (_.get(httpTrigger, '0.triggerConfig.authType')?.toLocaleLowerCase() === 'anonymous') {
-      logger.debug('invoke http anonymous');
-      return await requestDomain(url, jsonEvent);
-    }
-
     const headers = Object.assign(this.fcClient.buildHeaders(), this.fcClient.headers, jsonEvent?.headers || {});
-    headers['X-Fc-Log-Type'] = 'Tail';
+    if (!_.get(headers, 'X-Fc-Stateful-Async-Invocation-Id')) {
+      _.set(headers, 'X-Fc-Stateful-Async-Invocation-Id', parames.statefulAsyncInvocationId || '');
+    }
+    _.set(headers, 'X-Fc-Invocation-Type', parames.invocationType || 'sync');
     delete headers.host; // 携带 host 会导致请求失败
-    this.getSignature(headers, jsonEvent.method, customPath);
+
+    if (_.get(httpTrigger, '0.triggerConfig.authType')?.toLocaleLowerCase() !== 'anonymous') {
+      logger.debug('invoke http function');
+      this.getSignature(headers, jsonEvent.method, customPath);
+    }
 
     return await requestDomain(url, _.mergeWith(jsonEvent, { headers }));
   }

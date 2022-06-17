@@ -41,16 +41,20 @@ export const showLog = (log, instanceId) => {
 export const getInstanceId = (headers) => _.get(headers, 'x-fc-instance-id');
 
 export const requestDomain = async (url: string, payload) => {
-  if (_.isEmpty(payload.headers)) {
-    payload.headers = {};
-  }
-  payload.headers['X-Fc-Log-Type'] = 'Tail';
-
   logger.log(`\nRequest url: ${url}`);
-  const { body, headers } = await got(url, payload);
 
-  showLog(headers['x-fc-log-result'], getInstanceId(headers));
-  logger.log('\nFC Invoke Result:', 'green');
-  console.log(body);
-  logger.log('\n');
+  const isAsync = _.get(payload, 'headers[X-Fc-Invocation-Type]', '').toLocaleLowerCase() === 'async';
+  _.set(payload, 'headers[X-Fc-Log-Type]', isAsync ? 'None' : 'Tail');
+  const { statusCode, body, headers } = await got(url, payload);
+
+  if (isAsync) {
+    logger.log(`\nFC Invoke Result:`, 'green');
+    logger.log(`Code: ${statusCode}`, 'green');
+    logger.log(`RequestId: ${_.get(headers, 'x-fc-request-id', '')}\n`, 'green');
+  } else {
+    showLog(headers['x-fc-log-result'], getInstanceId(headers));
+    logger.log('\nFC Invoke Result:', 'green');
+    console.log(body);
+    logger.log('\n');
+  }
 };
