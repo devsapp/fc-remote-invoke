@@ -58,6 +58,9 @@ export default class RemoteInvoke {
     _.set(headers, 'X-Fc-Invocation-Type', parames.invocationType || 'sync');
     delete headers.host; // 携带 host 会导致请求失败
 
+    const isAsync = _.get(payload, 'headers[X-Fc-Invocation-Type]', '').toLocaleLowerCase() === 'async';
+    _.set(payload, 'headers[X-Fc-Log-Type]', isAsync ? 'None' : 'Tail');
+
     if (_.get(httpTrigger, '0.triggerConfig.authType')?.toLocaleLowerCase() !== 'anonymous') {
       logger.debug('invoke http function');
       this.getSignature(headers, jsonEvent.method, customPath);
@@ -222,7 +225,8 @@ export default class RemoteInvoke {
 
   private getSignature(headers, method = 'GET', path) {
     const { AccessKeyID, AccessKeySecret } = this.credentials;
-    var signature = this.fcCore.alicloudFc2.getSignature(AccessKeyID, AccessKeySecret, method, path, headers, {});
-    headers['authorization'] = signature;
+
+    const getSignature = _.get(this.fcCore, 'alicloudFc2.getSignature') || _.get(this.fcCore, 'alicloudFc2.default.getSignature');
+    headers['authorization'] = getSignature(AccessKeyID, AccessKeySecret, method, path, headers, {});
   }
 }

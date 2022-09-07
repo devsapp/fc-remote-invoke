@@ -44,7 +44,6 @@ export const requestDomain = async (url: string, payload) => {
   logger.log(`\nRequest url: ${url}`);
 
   const isAsync = _.get(payload, 'headers[X-Fc-Invocation-Type]', '').toLocaleLowerCase() === 'async';
-  _.set(payload, 'headers[X-Fc-Log-Type]', isAsync ? 'None' : 'Tail');
   const { statusCode, body, headers } = await got(url, payload);
 
   if (isAsync) {
