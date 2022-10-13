@@ -103,17 +103,23 @@ export default class RemoteInvoke {
   async eventInvoke({ serviceName, functionName, event, qualifier = 'LATEST' }, { invocationType, statefulAsyncInvocationId }) {
     if (invocationType === 'Sync') {
       const invokeVm = spinner(`invoke function: ${serviceName} / ${functionName}\n`);
-      const rs = await this.fcClient.invokeFunction(
-        serviceName,
-        functionName,
-        event,
-        {
-          'X-Fc-Log-Type': 'Tail',
-          'X-Fc-Invocation-Code-Version': 'Latest',
-          'X-Fc-Invocation-Type': invocationType,
-        },
-        qualifier,
-      );
+      let rs;
+      try {
+        rs = await this.fcClient.invokeFunction(
+          serviceName,
+          functionName,
+          event,
+          {
+            'X-Fc-Log-Type': 'Tail',
+            'X-Fc-Invocation-Code-Version': 'Latest',
+            'X-Fc-Invocation-Type': invocationType,
+          },
+          qualifier,
+        )
+      } catch (ex) {
+        invokeVm.stop();
+        throw ex;
+      }
       invokeVm.stop();
 
       showLog(rs.headers['x-fc-log-result'], getInstanceId(rs.headers));
