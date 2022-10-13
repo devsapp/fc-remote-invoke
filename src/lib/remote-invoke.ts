@@ -47,8 +47,10 @@ export default class RemoteInvoke {
       return await this.httpInvoke(payload, parames);
     }
 
-    const customPath = jsonEvent.path ? jsonEvent.path : '/';
-    const url = `${urlInternet}${customPath}`;
+    let customPath = _.get(jsonEvent, 'path', '/');
+    if (!customPath.startsWith('/')) {
+      customPath = `/${customPath}`
+    }
     delete jsonEvent.path;
 
     const headers = Object.assign(this.fcClient.buildHeaders(), this.fcClient.headers, jsonEvent?.headers || {});
@@ -66,7 +68,7 @@ export default class RemoteInvoke {
       this.getSignature(headers, jsonEvent.method, customPath);
     }
 
-    return await requestDomain(url, _.mergeWith(jsonEvent, { headers }));
+    return await requestDomain(`${urlInternet}${customPath}`, _.mergeWith(jsonEvent, { headers }));
   }
 
   async getHttpTrigger(serviceName, functionName, qualifier) {
